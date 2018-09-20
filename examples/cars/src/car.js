@@ -127,7 +127,7 @@ class Car {
 
     handle(throttle, steer) {
         // Steer value zero means straight forward. Positive is left and negative right.
-        this.frontWheel.steerValue = this.maxSteer * steer
+        this.frontWheel.steerValue = 0; //this.maxSteer * steer
 
         // Engine force forward
         var force = throttle * this.maxEngineForce

@@ -161,9 +161,9 @@ world.prototype.init = function (renderer) {
 world.prototype.populate = function (n) {
 
     var ag1 = new agent({}, this, "N")
-    var ag = new agent({}, this, "S")
+    //var ag = new agent({}, this, "S")
 
-    this.agents.push(ag);
+    //this.agents.push(ag);
     this.agents.push(ag1);
 
     var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
@@ -177,7 +177,7 @@ world.prototype.populate = function (n) {
 
     var color = 0xEDBB99
     var circlePoints = this.addCircle(0, 0, 1, 60);
-    this.addBodyFromPoints(circlePoints, color);
+    //this.addBodyFromPoints(circlePoints, color);
 };
 
 world.prototype.addCircle = function (cx, cy, radius, numPoints) {
