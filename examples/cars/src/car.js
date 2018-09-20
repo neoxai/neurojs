@@ -159,11 +159,26 @@ class Car {
         }
     }
 
-
+    addToCardinal(nsew){
+        if(nsew ==="N"){
+            this.addToWorldWithPos({posX:0, posY:-10, angle:-1*Math.PI});
+        }
+        if(nsew ==="S"){
+            this.addToWorldWithPos({posX:0, posY:10, angle:Math.PI});
+        }
+    }
     addToWorld() {
-        this.chassisBody.position[0] = (Math.random() - .5) * this.world.size.w
-        this.chassisBody.position[1] = (Math.random() - .5) * this.world.size.h
-        this.chassisBody.angle = (Math.random() * 2.0 - 1.0) * Math.PI
+        var initial={posX: (Math.random() - .5) * this.world.size.w,
+        posY: (Math.random() - .5) * this.world.size.h,
+        angle:(Math.random() * 2.0 - 1.0) * Math.PI}
+            this.addToWorldWithPos(initial);
+
+    }
+
+    addToWorldWithPos(initialPos) {
+        this.chassisBody.position[0] =initialPos.posX
+        this.chassisBody.position[1] = initialPos.posY
+        this.chassisBody.angle =initialPos.angle
 
         this.world.p2.addBody(this.chassisBody)
         this.vehicle.addToWorld(this.world.p2)

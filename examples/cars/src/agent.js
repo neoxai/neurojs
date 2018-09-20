@@ -57,6 +57,7 @@ agent.prototype.init = function (actor, critic) {
 
     this.actions = actions
     this.car.addToWorld()
+    this.car.addToCardinal("S")
 	this.loaded = true
 };
 
