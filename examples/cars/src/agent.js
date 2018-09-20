@@ -1,6 +1,7 @@
 var car = require('./car.js');
 
-function agent(opt, world) {
+
+function agent(opt, world, startPoint) {
     this.car = new car(world, {})
     this.options = opt
 
@@ -8,6 +9,21 @@ function agent(opt, world) {
     this.frequency = 20
     this.reward = 0
     this.loaded = false
+
+    this.North = {posX: 0, posY: -10, angle: 0};
+    this.South = {posX: 0, posY: 10, angle: Math.PI}
+
+    if (startPoint == "N") {
+        this.startPoint = this.North
+        this.endPoint = this.South
+    }
+    else {
+        this.startPoint = this.South
+        this.endPoint = this.North
+    }
+
+    this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX,2) 
+                                    + Math.pow(this.endPoint.posY - this.startPoint.posY,2))
 
     this.loss = 0
     this.timer = 0
@@ -56,8 +72,7 @@ agent.prototype.init = function (actor, critic) {
     this.world.brains.shared.add('critic', this.brain.algorithm.critic)
 
     this.actions = actions
-    this.car.addToWorld()
-    this.car.addToCardinal("S")
+    this.car.addToWorldWithPos(this.startPoint)
 	this.loaded = true
 };
 
@@ -74,7 +89,13 @@ agent.prototype.step = function (dt) {
         var vel = this.car.speed.local
         var speed = this.car.speed.velocity
 
+        var carX = this.car.chassisBody.position[0]
+        var carY = this.car.chassisBody.position[1]
+
+        var distance = Math.sqrt(Math.pow(this.endPoint.posX - carX,2) + Math.pow(this.endPoint.posY - carY,2))
+
         this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
+        this.reward += (this.originalDistance - distance) * .1
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
             this.reward -= 1.0 

@@ -159,10 +159,12 @@ world.prototype.init = function (renderer) {
 };
 
 world.prototype.populate = function (n) {
-    for (var i = 0; i < n; i++) {
-        var ag = new agent({}, this);
-        this.agents.push(ag);
-    }
+
+    var ag1 = new agent({}, this, "N");
+    var ag = new agent({}, this, "S")
+
+    this.agents.push(ag);
+    this.agents.push(ag1);
 
     var wx = this.size.w / 2 -.15, hy = this.size.h / 2 -.15
 
