@@ -2554,9 +2554,9 @@ world.prototype.addBodyFromCompressedPoints = function (outline) {
     this.addBodyFromPoints(points)
 };
 
-world.prototype.addBodyFromPoints = function (points) {
+world.prototype.addBodyFromPoints = function (points, c = color.randomPastelHex()) {
     var body = new p2.Body({ mass: 0.0 });
-    body.color = color.randomPastelHex()
+    body.color = c
 
     if (!body.fromPolygon(points.slice(0), { removeCollinearPoints: 0.1 })) {
         return
@@ -2647,6 +2647,7 @@ world.prototype.populate = function (n) {
 
     var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
 
+<<<<<<< HEAD
     // this.buildQuadrant(wx, hy, 1.2, -1, -1);
     // this.buildQuadrant(wx, hy, 1.2, -1, 1);
     // this.buildQuadrant(wx, hy, 1.2, 1, -1);
@@ -2656,6 +2657,18 @@ world.prototype.populate = function (n) {
 
     // //  var circlePoints = this.addCircle(0, 0, 1, 60);
     // //  this.addBodyFromPoints(circlePoints);
+=======
+    this.buildQuadrant(wx, hy, 1.2, -1, -1);
+    this.buildQuadrant(wx, hy, 1.2, -1, 1);
+    this.buildQuadrant(wx, hy, 1.2, 1, -1);
+    this.buildQuadrant(wx, hy, 1.2, 1, 1);
+
+    //this.buildTwoLaneRoad(wx, hy, 1.2)
+
+    var color = 0xEDBB99
+    var circlePoints = this.addCircle(0, 0, 1, 60);
+    this.addBodyFromPoints(circlePoints, color);
+>>>>>>> 3f4fb62d9c99cc1dda50a9926bb87c5fbc34eb9c
 };
 
 world.prototype.addCircle = function (cx, cy, radius, numPoints) {
@@ -2676,17 +2689,18 @@ world.prototype.flip = function (points, flipX, flipY) {
     }
 }
 world.prototype.buildQuadrant = function (wx, hy, carWidth, flipX, flipY) {
+    var color = 0xD0ECE7
     var box1 = [[carWidth, hy], [carWidth, hy - 5 * carWidth], [wx, hy - 5 * carWidth], [wx, hy]];
     this.flip(box1, flipX, flipY);
-    this.addBodyFromPoints(box1);
+    this.addBodyFromPoints(box1, color);
 
     var box2 = [[5 * carWidth, carWidth], [wx, carWidth], [wx, hy], [5 * carWidth, hy]];
     this.flip(box2, flipX, flipY);
-    this.addBodyFromPoints(box2);
+    this.addBodyFromPoints(box2, color);
 
     var circle = this.addCircle(5 * carWidth, 5 * carWidth, 4 * carWidth, 60);
     this.flip(circle, flipX, flipY);
-    this.addBodyFromPoints(circle);
+    this.addBodyFromPoints(circle, color);
 }
 
 world.prototype.buildTwoLaneRoad = function (wx, hy, carWidth) {
