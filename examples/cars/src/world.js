@@ -5,7 +5,7 @@ var car = require('./car.js')
 function world() {
     this.agents = [];
     this.p2 = new p2.World({
-        gravity : [0,0]
+        gravity: [0, 0]
     });
 
     this.p2.solver.tolerance = 0
@@ -69,18 +69,18 @@ world.prototype.addBodyFromCompressedPoints = function (outline) {
     for (var i = 0; i < (outline.length / 2); i++) {
         var x = outline[i * 2 + 0]
         var y = outline[i * 2 + 1]
-        points.push([ x, y ])
+        points.push([x, y])
     }
 
     this.addBodyFromPoints(points)
 };
 
 world.prototype.addBodyFromPoints = function (points) {
-    var body = new p2.Body({ mass : 0.0 });
+    var body = new p2.Body({ mass: 0.0 });
     body.color = color.randomPastelHex()
 
-    if(!body.fromPolygon(points.slice(0), { removeCollinearPoints: 0.1 })) {
-        return 
+    if (!body.fromPolygon(points.slice(0), { removeCollinearPoints: 0.1 })) {
+        return
     }
 
     var outline = new Float64Array(points.length * 2)
@@ -103,23 +103,23 @@ world.prototype.addWall = function (start, end, width) {
     if (start[0] === end[0]) { // hor
         h = end[1] - start[1];
         w = width
-        pos = [ start[0], start[1] + 0.5 * h ]
+        pos = [start[0], start[1] + 0.5 * h]
     }
     else if (start[1] === end[1]) { // ver
         w = end[0] - start[0]
         h = width
-        pos = [ start[0] + 0.5 * w, start[1] ]
+        pos = [start[0] + 0.5 * w, start[1]]
     }
-    else 
+    else
         throw 'error'
 
     // Create box
     var b = new p2.Body({
-        mass : 0.0,
-        position : pos
+        mass: 0.0,
+        position: pos
     });
 
-    var rectangleShape = new p2.Box({ width: w, height:  h });
+    var rectangleShape = new p2.Box({ width: w, height: h });
     // rectangleShape.color = 0xFFFFFF
     b.hidden = true;
     b.addShape(rectangleShape);
@@ -132,15 +132,15 @@ world.prototype.addPolygons = function (polys) {
 
     for (var i = 0; i < polys.length; i++) {
         var points = polys[i]
-        var b = new p2.Body({ mass : 0.0 });
+        var b = new p2.Body({ mass: 0.0 });
         if (b.fromPolygon(points, {
             removeCollinearPoints: 0.1,
             skipSimpleCheck: true
         })) {
-             this.p2.addBody(b)
+            this.p2.addBody(b)
         }
     }
-    
+
 }
 
 world.prototype.init = function (renderer) {
@@ -150,10 +150,10 @@ world.prototype.init = function (renderer) {
     var h = renderer.viewport.height / renderer.viewport.scale
     var wx = w / 2, hx = h / 2
 
-    this.addWall( [ -wx - 0.25, -hx ], [ -wx - 0.25, hx ], 0.5 )
-    this.addWall( [ wx + 0.25, -hx ], [ wx + 0.25, hx ], 0.5 )
-    this.addWall( [ -wx, -hx - 0.25 ], [ wx, -hx - 0.25 ], 0.5 )
-    this.addWall( [ -wx, hx + 0.25 ], [ wx, hx + 0.25 ], 0.5 )
+    this.addWall([-wx - 0.25, -hx], [-wx - 0.25, hx], 0.5)
+    this.addWall([wx + 0.25, -hx], [wx + 0.25, hx], 0.5)
+    this.addWall([-wx, -hx - 0.25], [wx, -hx - 0.25], 0.5)
+    this.addWall([-wx, hx + 0.25], [wx, hx + 0.25], 0.5)
 
     this.size = { w, h }
 };
@@ -164,26 +164,65 @@ world.prototype.populate = function (n) {
         this.agents.push(ag);
     }
 
-    var wx = this.size.w / 2 -.15, hy = this.size.h / 2 -.15
+    var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
 
-    this.buildTwoLaneRoad(wx, hy, 1.2)
+    this.buildQuadrant(wx, hy, 1.2, -1, -1);
+    this.buildQuadrant(wx, hy, 1.2, -1, 1);
+    this.buildQuadrant(wx, hy, 1.2, 1, -1);
+    this.buildQuadrant(wx, hy, 1.2, 1, 1);
+
+    //this.buildTwoLaneRoad(wx, hy, 1.2)
+
+    //  var circlePoints = this.addCircle(0, 0, 1, 60);
+    //  this.addBodyFromPoints(circlePoints);
 };
 
-world.prototype.buildTwoLaneRoad = function(wx, hy, carWidth) {
-    
+world.prototype.addCircle = function (cx, cy, radius, numPoints) {
+    var result = [];
+    for (var i = 0; i < numPoints; ++i) {
+        var theta = ((2 * Math.PI) / numPoints) * i;
+        var x = cx + radius * Math.cos(theta);
+        var y = cy + radius * Math.sin(theta);
+        result.push([x, y]);
+    }
+    return result;
+}
 
-    var leftSide = [[-wx,-hy], [-carWidth,-hy], [-carWidth,hy], [-wx,hy]]
+world.prototype.flip = function (points, flipX, flipY) {
+    for (var i = 0; i < points.length; ++i) {
+        points[i][0] = points[i][0] * flipX;
+        points[i][1] = points[i][1] * flipY;
+    }
+}
+world.prototype.buildQuadrant = function (wx, hy, carWidth, flipX, flipY) {
+    var box1 = [[carWidth, hy], [carWidth, hy - 5 * carWidth], [wx, hy - 5 * carWidth], [wx, hy]];
+    this.flip(box1, flipX, flipY);
+    this.addBodyFromPoints(box1);
+
+    var box2 = [[5 * carWidth, carWidth], [wx, carWidth], [wx, hy], [5 * carWidth, hy]];
+    this.flip(box2, flipX, flipY);
+    this.addBodyFromPoints(box2);
+
+    var circle = this.addCircle(5 * carWidth, 5 * carWidth, 4 * carWidth, 60);
+    this.flip(circle, flipX, flipY);
+    this.addBodyFromPoints(circle);
+}
+
+world.prototype.buildTwoLaneRoad = function (wx, hy, carWidth) {
+
+
+    var leftSide = [[-wx, -hy], [-carWidth, -hy], [-carWidth, hy], [-wx, hy]]
     this.addBodyFromPoints(leftSide)
 
-    var rightSide = [[carWidth,-hy], [wx,-hy], [wx,hy], [carWidth,hy]]
+    var rightSide = [[carWidth, -hy], [wx, -hy], [wx, hy], [carWidth, hy]]
     this.addBodyFromPoints(rightSide)
-}	
+}
 
 world.prototype.resize = function (renderer) {
 };
 
 world.prototype.step = function (dt) {
-    if (dt >= 0.02)  dt = 0.02;
+    if (dt >= 0.02) dt = 0.02;
 
     ++this.timer
 
@@ -202,7 +241,7 @@ world.prototype.step = function (dt) {
 
     if (this.plotting) {
         this.chartEphemeralData.push({
-            loss: loss / this.agents.length, 
+            loss: loss / this.agents.length,
             reward: reward / this.agents.length
         })
 
@@ -211,7 +250,7 @@ world.prototype.step = function (dt) {
             this.chartEphemeralData = []
         }
     }
-    
+
 
     this.p2.step(1 / 60, dt, 10);
     this.age += dt
@@ -254,10 +293,10 @@ world.prototype.updateChart = function () {
                 name: key,
                 data: []
             })
-        } 
+        }
 
         else {
-           series.push({
+            series.push({
                 name: key,
                 data: this.chartData[key]
             })
