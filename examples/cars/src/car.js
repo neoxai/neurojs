@@ -177,10 +177,22 @@ car.prototype.drawSensors = function () {
     }
 };
 
+
+car.prototype.addToWorldLocation = function(cardinalDir){
+
+}
+
 car.prototype.addToWorld = function () {
-    this.chassisBody.position[0] = (Math.random() - .5) * this.world.size.w
-    this.chassisBody.position[1] = (Math.random() - .5) * this.world.size.h
-    this.chassisBody.angle = (Math.random() * 2.0 - 1.0) * Math.PI
+    var initialPos ={posX: (Math.random() - .5) * this.world.size.w,
+    posY: (Math.random() - .5) * this.world.size.h,
+    angle: (Math.random() * 2.0 - 1.0) * Math.PI};
+
+        this.addToWorldHard(initialPos);
+}
+car.prototype.addToWorldHard = function (initialPosition) {
+    this.chassisBody.position[0] = initialPosition.x
+    this.chassisBody.position[1] = initialPosition.y
+    this.chassisBody.angle =initialPosition.angle
 
     this.world.p2.addBody(this.chassisBody)
     this.vehicle.addToWorld(this.world.p2)

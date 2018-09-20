@@ -107,7 +107,7 @@
 </head>
 <body>
 	<div class="description wrap">
-		<p>This demo is about self-learning cars. The reinforcement-learning-goal of these cars is to maximize their future speed at all times, which means to avoid shapes. The input to the cars' neural network is the sensor data: speed in x- and y-direction, distance + entity type + normal vector (2d) of sensing rays (19 per car). In addition to the current time-step they receive the last action-state pair. Each state has 19x4 + 2 = 78 dimensions. The action space is 2 dimensional, which means the input to the car's brain is 78x2 + 2 = 158 dimensional. </p>
+		<p>This demo is about self-learning, non-crashing cars. The reinforcement-learning-goal of these cars is to maximize their future speed at all times, which means to avoid shapes. The input to the cars' neural network is the sensor data: speed in x- and y-direction, distance + entity type + normal vector (2d) of sensing rays (19 per car). In addition to the current time-step they receive the last action-state pair. Each state has 19x4 + 2 = 78 dimensions. The action space is 2 dimensional, which means the input to the car's brain is 78x2 + 2 = 158 dimensional. </p>
 		<p>This page uses the DDPG (deep deterministic policy gradient) algorithm, which means the action space is continuous. 1d for speed control (gas pedal, -1 for braking/going backwards, +1 for max thrust in forward direction) and 1d for stearing (-1 left, 0 straight, +1 right). </p>
 		<p><strong>Click and drag to draw shapes, which must be avoided by the cars.</strong></p>
 

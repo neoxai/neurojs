@@ -69,7 +69,7 @@ world.prototype.addBodyFromCompressedPoints = function (outline) {
         var y = outline[i * 2 + 1]
         points.push([ x, y ])
     }
-
+    
     this.addBodyFromPoints(points)
 };
 
@@ -287,10 +287,8 @@ world.prototype.clearObstacles = function () {
 world.prototype.import = function (buf) {
     this.clearObstacles()
 
-    var contents = window.neurojs.Binary.Reader.read(buf)
-    var j = -1
-    var meta = contents[++j]
-
+    var meta = []
+    
     for (var i = 0; i < meta.obstacles; i++) {
         this.addBodyFromCompressedPoints(contents[++j])
     }
