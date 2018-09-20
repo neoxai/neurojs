@@ -201,7 +201,10 @@ class Car {
             }
         })
     }
-
+    removeFromWorld(){
+        this.world.p2.removeBody(this.chassisBody);
+        this.vehicle.removeFromWorld(this.world.p2);
+    }
 }
 
 Car.ShapeEntity = 2

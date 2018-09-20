@@ -273,7 +273,10 @@ class Car {
             }
         })
     }
-
+    removeFromWorld(){
+        this.world.p2.removeBody(this.chassisBody);
+        this.vehicle.removeFromWorld(this.world.p2);
+    }
 }
 
 Car.ShapeEntity = 2
@@ -368,6 +371,7 @@ function agent(opt, world, startPoint) {
     this.frequency = 20
     this.reward = 0
     this.loaded = false
+    this.stuckCounter=0;
 
     this.North = {posX: 0, posY: -10, angle: 0};
     this.South = {posX: 0, posY: 10, angle: Math.PI}
@@ -450,12 +454,15 @@ agent.prototype.step = function (dt) {
 
         var distance = this.getDistanceFromEndpoint()
 
-
         this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20 
-        this.reward = (this.originalDistance - distance) * .25
+        this.reward += (this.originalDistance - distance) * .25
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
             this.reward -= 1.0 
+            this.stuckCounter++
+        }
+        else{
+            this.stuckCounter=0;
         }
 
         this.loss = this.brain.learn(this.reward)
@@ -472,6 +479,13 @@ agent.prototype.step = function (dt) {
     return this.timer % this.timerFrequency === 0
 };
 
+agent.prototype.isStuck = function(){
+ return (this.stuckCounter > 100) 
+
+}
+agent.prototype.selfDestruct = function(){
+    this.car.removeFromWorld()
+}
 agent.prototype.getDistanceFromEndpoint = function() {
     var carX = this.car.chassisBody.position[0]
     var carY = this.car.chassisBody.position[1]
@@ -2647,7 +2661,6 @@ world.prototype.populate = function (n) {
 
     var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
 
-<<<<<<< HEAD
     // this.buildQuadrant(wx, hy, 1.2, -1, -1);
     // this.buildQuadrant(wx, hy, 1.2, -1, 1);
     // this.buildQuadrant(wx, hy, 1.2, 1, -1);
@@ -2655,20 +2668,9 @@ world.prototype.populate = function (n) {
 
     // //this.buildTwoLaneRoad(wx, hy, 1.2)
 
-    // //  var circlePoints = this.addCircle(0, 0, 1, 60);
-    // //  this.addBodyFromPoints(circlePoints);
-=======
-    this.buildQuadrant(wx, hy, 1.2, -1, -1);
-    this.buildQuadrant(wx, hy, 1.2, -1, 1);
-    this.buildQuadrant(wx, hy, 1.2, 1, -1);
-    this.buildQuadrant(wx, hy, 1.2, 1, 1);
-
-    //this.buildTwoLaneRoad(wx, hy, 1.2)
-
     var color = 0xEDBB99
     var circlePoints = this.addCircle(0, 0, 1, 60);
     this.addBodyFromPoints(circlePoints, color);
->>>>>>> 3f4fb62d9c99cc1dda50a9926bb87c5fbc34eb9c
 };
 
 world.prototype.addCircle = function (cx, cy, radius, numPoints) {
@@ -2727,10 +2729,11 @@ world.prototype.step = function (dt) {
         loss += this.agents[i].loss
         reward += this.agents[i].reward
 
-        if (this.agents[i].getDistanceFromEndpoint() < 4) {
+        
+        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].isStuck()) {
             var possibleStartPoints = ["N","S"]
-            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*items.length)];
-
+            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
+            this.agents[i].selfDestruct()
             this.agents[i] = new agent({}, this, possibleStartPoint)
         }
     }

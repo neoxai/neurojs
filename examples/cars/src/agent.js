@@ -9,6 +9,7 @@ function agent(opt, world, startPoint) {
     this.frequency = 20
     this.reward = 0
     this.loaded = false
+    this.stuckCounter=0;
 
     this.North = {posX: 0, posY: -10, angle: 0};
     this.South = {posX: 0, posY: 10, angle: Math.PI}
@@ -96,6 +97,10 @@ agent.prototype.step = function (dt) {
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
             this.reward -= 1.0 
+            this.stuckCounter++
+        }
+        else{
+            this.stuckCounter=0;
         }
 
         this.loss = this.brain.learn(this.reward)
@@ -112,6 +117,13 @@ agent.prototype.step = function (dt) {
     return this.timer % this.timerFrequency === 0
 };
 
+agent.prototype.isStuck = function(){
+ return (this.stuckCounter > 100) 
+
+}
+agent.prototype.selfDestruct = function(){
+    this.car.removeFromWorld()
+}
 agent.prototype.getDistanceFromEndpoint = function() {
     var carX = this.car.chassisBody.position[0]
     var carY = this.car.chassisBody.position[1]

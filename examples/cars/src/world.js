@@ -236,10 +236,11 @@ world.prototype.step = function (dt) {
         loss += this.agents[i].loss
         reward += this.agents[i].reward
 
-        if (this.agents[i].getDistanceFromEndpoint() < 4) {
+        
+        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].isStuck()) {
             var possibleStartPoints = ["N","S"]
-            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*items.length)];
-
+            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
+            this.agents[i].selfDestruct()
             this.agents[i] = new agent({}, this, possibleStartPoint)
         }
     }
