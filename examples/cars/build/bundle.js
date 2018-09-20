@@ -2616,7 +2616,21 @@ world.prototype.populate = function (n) {
         var ag = new agent({}, this);
         this.agents.push(ag);
     }
+
+    var wx = this.size.w / 2 -.15, hy = this.size.h / 2 -.15
+
+    this.buildTwoLaneRoad(wx, hy, 1.2)
 };
+
+world.prototype.buildTwoLaneRoad = function(wx, hy, carWidth) {
+    
+
+    var leftSide = [[-wx,-hy], [-carWidth,-hy], [-carWidth,hy], [-wx,hy]]
+    this.addBodyFromPoints(leftSide)
+
+    var rightSide = [[carWidth,-hy], [wx,-hy], [wx,hy], [carWidth,hy]]
+    this.addBodyFromPoints(rightSide)
+}	
 
 world.prototype.resize = function (renderer) {
 };
