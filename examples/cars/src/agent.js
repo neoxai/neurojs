@@ -58,7 +58,7 @@ agent.prototype.init = function (actor, critic) {
 
         experience: 75e3, 
         // buffer: window.neurojs.Buffers.UniformReplayBuffer,
-
+        
         learningPerTick: 40, 
         startLearningAt: 900,
 
@@ -89,13 +89,10 @@ agent.prototype.step = function (dt) {
         var vel = this.car.speed.local
         var speed = this.car.speed.velocity
 
-        var carX = this.car.chassisBody.position[0]
-        var carY = this.car.chassisBody.position[1]
+        var distance = this.getDistanceFromEndpoint()
 
-        var distance = Math.sqrt(Math.pow(this.endPoint.posX - carX,2) + Math.pow(this.endPoint.posY - carY,2))
-
-        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
-        this.reward += (this.originalDistance - distance) * .1
+        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20 
+        this.reward += (this.originalDistance - distance) * .25
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
             this.reward -= 1.0 
@@ -113,6 +110,13 @@ agent.prototype.step = function (dt) {
     }
 
     return this.timer % this.timerFrequency === 0
+};
+
+agent.prototype.getDistanceFromEndpoint = function() {
+    var carX = this.car.chassisBody.position[0]
+    var carY = this.car.chassisBody.position[1]
+
+    return Math.sqrt(Math.pow(this.endPoint.posX - carX,2) + Math.pow(this.endPoint.posY - carY,2))
 };
 
 agent.prototype.draw = function (context) {

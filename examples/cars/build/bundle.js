@@ -417,7 +417,7 @@ agent.prototype.init = function (actor, critic) {
 
         experience: 75e3, 
         // buffer: window.neurojs.Buffers.UniformReplayBuffer,
-
+        
         learningPerTick: 40, 
         startLearningAt: 900,
 
@@ -448,13 +448,11 @@ agent.prototype.step = function (dt) {
         var vel = this.car.speed.local
         var speed = this.car.speed.velocity
 
-        var carX = this.car.chassisBody.position[0]
-        var carY = this.car.chassisBody.position[1]
+        var distance = this.getDistanceFromEndpoint()
 
-        var distance = Math.sqrt(Math.pow(this.endPoint.posX - carX,2) + Math.pow(this.endPoint.posY - carY,2))
 
-        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
-        this.reward += (this.originalDistance - distance) * .1
+        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20 
+        this.reward = (this.originalDistance - distance) * .25
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
             this.reward -= 1.0 
@@ -472,6 +470,13 @@ agent.prototype.step = function (dt) {
     }
 
     return this.timer % this.timerFrequency === 0
+};
+
+agent.prototype.getDistanceFromEndpoint = function() {
+    var carX = this.car.chassisBody.position[0]
+    var carY = this.car.chassisBody.position[1]
+
+    return Math.sqrt(Math.pow(this.endPoint.posX - carX,2) + Math.pow(this.endPoint.posY - carY,2))
 };
 
 agent.prototype.draw = function (context) {
@@ -2634,7 +2639,7 @@ world.prototype.init = function (renderer) {
 
 world.prototype.populate = function (n) {
 
-    var ag1 = new agent({}, this, "N");
+    var ag1 = new agent({}, this, "N")
     var ag = new agent({}, this, "S")
 
     this.agents.push(ag);
@@ -2642,14 +2647,15 @@ world.prototype.populate = function (n) {
 
     var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
 
-    this.buildQuadrant(wx, hy, 1.2, -1, -1);
-    this.buildQuadrant(wx, hy, 1.2, -1, 1);
-    this.buildQuadrant(wx, hy, 1.2, 1, -1);
-    this.buildQuadrant(wx, hy, 1.2, 1, 1);
-    //this.buildTwoLaneRoad(wx, hy, 1.2)
+    // this.buildQuadrant(wx, hy, 1.2, -1, -1);
+    // this.buildQuadrant(wx, hy, 1.2, -1, 1);
+    // this.buildQuadrant(wx, hy, 1.2, 1, -1);
+    // this.buildQuadrant(wx, hy, 1.2, 1, 1);
 
-    //  var circlePoints = this.addCircle(0, 0, 1, 60);
-    //  this.addBodyFromPoints(circlePoints);
+    // //this.buildTwoLaneRoad(wx, hy, 1.2)
+
+    // //  var circlePoints = this.addCircle(0, 0, 1, 60);
+    // //  this.addBodyFromPoints(circlePoints);
 };
 
 world.prototype.addCircle = function (cx, cy, radius, numPoints) {
@@ -2706,6 +2712,13 @@ world.prototype.step = function (dt) {
         agentUpdate = this.agents[i].step(dt);
         loss += this.agents[i].loss
         reward += this.agents[i].reward
+
+        if (this.agents[i].getDistanceFromEndpoint() < 4) {
+            var possibleStartPoints = ["N","S"]
+            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*items.length)];
+
+            this.agents[i] = new agent({}, this, possibleStartPoint)
+        }
     }
 
     this.brains.shared.step()

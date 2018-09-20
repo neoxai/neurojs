@@ -160,7 +160,7 @@ world.prototype.init = function (renderer) {
 
 world.prototype.populate = function (n) {
 
-    var ag1 = new agent({}, this, "N");
+    var ag1 = new agent({}, this, "N")
     var ag = new agent({}, this, "S")
 
     this.agents.push(ag);
@@ -168,15 +168,15 @@ world.prototype.populate = function (n) {
 
     var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
 
-    this.buildQuadrant(wx, hy, 1.2, -1, -1);
-    this.buildQuadrant(wx, hy, 1.2, -1, 1);
-    this.buildQuadrant(wx, hy, 1.2, 1, -1);
-    this.buildQuadrant(wx, hy, 1.2, 1, 1);
+    // this.buildQuadrant(wx, hy, 1.2, -1, -1);
+    // this.buildQuadrant(wx, hy, 1.2, -1, 1);
+    // this.buildQuadrant(wx, hy, 1.2, 1, -1);
+    // this.buildQuadrant(wx, hy, 1.2, 1, 1);
 
-    //this.buildTwoLaneRoad(wx, hy, 1.2)
+    // //this.buildTwoLaneRoad(wx, hy, 1.2)
 
-    //  var circlePoints = this.addCircle(0, 0, 1, 60);
-    //  this.addBodyFromPoints(circlePoints);
+    // //  var circlePoints = this.addCircle(0, 0, 1, 60);
+    // //  this.addBodyFromPoints(circlePoints);
 };
 
 world.prototype.addCircle = function (cx, cy, radius, numPoints) {
@@ -233,6 +233,13 @@ world.prototype.step = function (dt) {
         agentUpdate = this.agents[i].step(dt);
         loss += this.agents[i].loss
         reward += this.agents[i].reward
+
+        if (this.agents[i].getDistanceFromEndpoint() < 4) {
+            var possibleStartPoints = ["N","S"]
+            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*items.length)];
+
+            this.agents[i] = new agent({}, this, possibleStartPoint)
+        }
     }
 
     this.brains.shared.step()
