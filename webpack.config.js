@@ -1,10 +1,10 @@
 var path = require('path')
 
 const config = {
-    entry: './src/framework.js',
+    entry: './examples/cars/src/entry.js',
     output: {
-        path: path.resolve(__dirname, 'build'),
-        filename: 'neurojs-v2.js'
+        path: path.resolve(__dirname, 'examples/cars/build'),
+        filename: 'bundle.js'
     },
     // module: {
     //   loaders: [
