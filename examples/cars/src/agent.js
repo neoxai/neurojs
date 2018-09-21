@@ -59,18 +59,17 @@ agent.prototype.init = function (actor, critic) {
         discount: 0.97, 
 
         experience: 75e3, 
-        // buffer: window.neurojs.Buffers.UniformReplayBuffer,
+        //buffer: window.neurojs.Buffers.UniformReplayBuffer,
         
         learningPerTick: 40, 
-        startLearningAt: 900,
+        startLearningAt: 10,
 
-        theta: 0.05, // progressive copy
-
+        theta: .05, // progressive copy
         alpha: 0.1 // advantage learning
 
     })
 
-    // this.world.brains.shared.add('actor', this.brain.algorithm.actor)
+    this.world.brains.shared.add('actor', this.brain.algorithm.actor)
     this.world.brains.shared.add('critic', this.brain.algorithm.critic)
 
     this.actions = actions
@@ -88,13 +87,16 @@ agent.prototype.step = function (dt) {
     if (this.timer % this.timerFrequency === 0) {
         this.car.update()
 
+        // you can find these values like speed.* and endGoal.* in the sensors.
         var vel = this.car.speed.local
         var speed = this.car.speed.velocity
+        
+        var velocityAngleFromEndGoal = this.car.endGoal.cosine
 
         var distance = this.getDistanceFromEndpoint()
 
         // todo: have a reward base on speed TOWARDS end goal?
-        this.reward = (this.originalDistance - distance) - this.car.contact * 10 - this.car.impact * 20 
+        this.reward = Math.pow(this.originalDistance/distance,2) - this.car.contact * 10 - this.car.impact * 20 + velocityAngleFromEndGoal*5
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
             this.reward -= 1.0 * this.stuckCounter

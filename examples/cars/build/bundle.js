@@ -98,6 +98,7 @@ class Car {
 
         this.sensors = Car.Sensors.build(this)
         this.speed = this.sensors.getByType("speed")[0]
+        this.endGoal = this.sensors.getByType("endGoal")[0]
     }
 
     createPhysicalBody() {
@@ -423,18 +424,17 @@ agent.prototype.init = function (actor, critic) {
         discount: 0.97, 
 
         experience: 75e3, 
-        // buffer: window.neurojs.Buffers.UniformReplayBuffer,
+        //buffer: window.neurojs.Buffers.UniformReplayBuffer,
         
         learningPerTick: 40, 
-        startLearningAt: 900,
+        startLearningAt: 10,
 
-        theta: 0.05, // progressive copy
-
+        theta: .05, // progressive copy
         alpha: 0.1 // advantage learning
 
     })
 
-    // this.world.brains.shared.add('actor', this.brain.algorithm.actor)
+    this.world.brains.shared.add('actor', this.brain.algorithm.actor)
     this.world.brains.shared.add('critic', this.brain.algorithm.critic)
 
     this.actions = actions
@@ -452,12 +452,16 @@ agent.prototype.step = function (dt) {
     if (this.timer % this.timerFrequency === 0) {
         this.car.update()
 
+        // you can find these values like speed.* and endGoal.* in the sensors.
         var vel = this.car.speed.local
         var speed = this.car.speed.velocity
+        
+        var velocityAngleFromEndGoal = this.car.endGoal.cosine
 
         var distance = this.getDistanceFromEndpoint()
 
-        this.reward = (this.originalDistance - distance) - this.car.contact * 10 - this.car.impact * 20 
+        // todo: have a reward base on speed TOWARDS end goal?
+        this.reward = Math.pow(this.originalDistance/distance,2) - this.car.contact * 10 - this.car.impact * 20 + velocityAngleFromEndGoal*5
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
             this.reward -= 1.0 * this.stuckCounter
@@ -1231,12 +1235,24 @@ class EndGoalSensor extends Sensor {
         var endPosY = this.car.endPoint.posY
 
         var resultantVec = p2.vec2.fromValues(endPosX-posX, endPosY-posY)
+        var resultantVecLength = p2.vec2.len(resultantVec)
+        var velocityVecLength = p2.vec2.len(this.car.chassisBody.velocity)
+        var dotProduct = p2.vec2.dot(resultantVec,this.car.chassisBody.velocity)
 
+        if (velocityVecLength > 0) {
+            var cosine = this.cosine = dotProduct / (resultantVecLength * velocityVecLength)
+        }
+        else {
+            var cosine = this.cosine = 0
+        }
+
+        
         // Math.sqrt(Math.pow(endPosX - posX, 2) + Math.pow(endPosY - posY, 2))
 
         this.data[0] = p2.vec2.len(resultantVec)
         this.data[1] = resultantVec[0]
         this.data[2] = resultantVec[1]
+        this.data[3] = cosine
     }
     
     draw(g) {
@@ -1257,7 +1273,7 @@ const sensorTypes = {
 
 DistanceSensor.dimensions = 3
 SpeedSensor.dimensions = 3
-EndGoalSensor.dimensions = 3
+EndGoalSensor.dimensions = 4
 
 class SensorArray {
 
@@ -2767,8 +2783,11 @@ world.prototype.step = function (dt) {
         loss += this.agents[i].loss
         reward += this.agents[i].reward
 
-        
-        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].isStuck()) {
+
+        // I removed this to give time for exploration. I replaced it with a hard timer reset.
+        // I also added a higher penalty for staying stuck
+        // this.agents[i].isStuck() ||
+        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].timer > 10000) {
             var possibleStartPoints = ["N","S"]
             var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
             this.agents[i].selfDestruct()

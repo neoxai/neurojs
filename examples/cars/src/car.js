@@ -26,6 +26,7 @@ class Car {
 
         this.sensors = Car.Sensors.build(this)
         this.speed = this.sensors.getByType("speed")[0]
+        this.endGoal = this.sensors.getByType("endGoal")[0]
     }
 
     createPhysicalBody() {

@@ -136,12 +136,24 @@ class EndGoalSensor extends Sensor {
         var endPosY = this.car.endPoint.posY
 
         var resultantVec = p2.vec2.fromValues(endPosX-posX, endPosY-posY)
+        var resultantVecLength = p2.vec2.len(resultantVec)
+        var velocityVecLength = p2.vec2.len(this.car.chassisBody.velocity)
+        var dotProduct = p2.vec2.dot(resultantVec,this.car.chassisBody.velocity)
 
+        if (velocityVecLength > 0) {
+            var cosine = this.cosine = dotProduct / (resultantVecLength * velocityVecLength)
+        }
+        else {
+            var cosine = this.cosine = 0
+        }
+
+        
         // Math.sqrt(Math.pow(endPosX - posX, 2) + Math.pow(endPosY - posY, 2))
 
         this.data[0] = p2.vec2.len(resultantVec)
         this.data[1] = resultantVec[0]
         this.data[2] = resultantVec[1]
+        this.data[3] = cosine
     }
     
     draw(g) {
@@ -162,7 +174,7 @@ const sensorTypes = {
 
 DistanceSensor.dimensions = 3
 SpeedSensor.dimensions = 3
-EndGoalSensor.dimensions = 3
+EndGoalSensor.dimensions = 4
 
 class SensorArray {
 

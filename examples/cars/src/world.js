@@ -236,8 +236,11 @@ world.prototype.step = function (dt) {
         loss += this.agents[i].loss
         reward += this.agents[i].reward
 
-        
-        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].isStuck()) {
+
+        // I removed this to give time for exploration. I replaced it with a hard timer reset.
+        // I also added a higher penalty for staying stuck
+        // this.agents[i].isStuck() ||
+        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].timer > 10000) {
             var possibleStartPoints = ["N","S"]
             var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
             this.agents[i].selfDestruct()
