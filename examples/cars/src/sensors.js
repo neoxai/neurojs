@@ -91,6 +91,28 @@ class DistanceSensor extends Sensor {
 
 }
 
+class DirectionSensor extends Sensor {
+	constructor(car, opt) {
+		super()
+		this.type = "direction";
+		this.car = car;
+		this.data = new Float64Array(DirectionSensor.dimensions);
+	}
+	
+	update() {
+		this.data[0] = this.car.chassisBody.angle;
+	}
+	
+	draw(g) {
+		if (g._directionLabel === undefined) {
+			g._directionLabel = new PIXI.Text('0, 0', { font: '80px Helvetica Neue' });
+            g._directionLabel.scale.x = (g._directionLabel.scale.y = 3e-3);
+            g.addChild(g._directionLabel);
+		}
+		g._directionLabel.text = this.car.chassisBody.angle;	
+	}
+}
+
 class SpeedSensor extends Sensor {
 
     constructor(car, opt) {
@@ -109,14 +131,14 @@ class SpeedSensor extends Sensor {
     }
 
     draw(g) {
-        if (g.__label === undefined) {
-            g.__label = new PIXI.Text('0 km/h', { font: '80px Helvetica Neue' });
-            g.__label.scale.x = (g.__label.scale.y = 3e-3);
-            g.addChild(g.__label);
-        }
-
-        g.__label.text = Math.floor(this.velocity * 3.6) + ' km/h';
-        g.__label.rotation = -this.car.chassisBody.interpolatedAngle;
+        //if (g.__label === undefined) {
+        //    g.__label = new PIXI.Text('0 km/h', { font: '80px Helvetica Neue' });
+        //    g.__label.scale.x = (g.__label.scale.y = 3e-3);
+        //    g.addChild(g.__label);
+        //}
+//
+//        g.__label.text = Math.floor(this.velocity * 3.6) + ' km/h';
+//        g.__label.rotation = -this.car.chassisBody.interpolatedAngle;
     }
 
 }
@@ -157,24 +179,51 @@ class EndGoalSensor extends Sensor {
     }
     
     draw(g) {
-        if (g.__label === undefined) {
-            g.__label = new PIXI.Text('End GOALLL', {font: '80px Helvetica Neue'});
-            g.__label.scale.x = (g.__label.scale.y = 3e-3);
-            g.addChild(g.__label);
-        }
+        //if (g.__label === undefined) {
+        //    g.__label = new PIXI.Text('End GOALLL', {font: '80px Helvetica Neue'});
+        //    g.__label.scale.x = (g.__label.scale.y = 3e-3);
+        //    g.addChild(g.__label);
+        //}
     }
 }
 
+class GpsSensor extends Sensor {
+	constructor (car, opt) {
+		super()
+		this.type = "Gps";
+		this.car = car;
+		this.data = new Float64Array(GpsSensor.dimensions);
+	}
+	
+	update() {
+		this.data[0] = this.car.chassisBody.position[0];
+		this.data[1] = this.car.chassisBody.position[1];
+	}
+	
+	draw(g) {
+		//if (g._gpsLabel === undefined) {
+		//	g._gpsLabel = new PIXI.Text('0, 0', { font: '80px Helvetica Neue' });
+        //    g._gpsLabel.scale.x = (g._gpsLabel.scale.y = 3e-3);
+        //    g.addChild(g._gpsLabel);
+		//}
+		//g._gpsLabel.text = this.car.chassisBody.position[0] + ", " + this.car.chassisBody.position[1]
+		
+	}		
+}
 
 const sensorTypes = {
     "distance": DistanceSensor,
     "speed": SpeedSensor,
-    "endGoal": EndGoalSensor
+    "endGoal": EndGoalSensor,
+	"Gps": GpsSensor,
+	"Direction": DirectionSensor,
 }
 
 DistanceSensor.dimensions = 3
 SpeedSensor.dimensions = 3
 EndGoalSensor.dimensions = 4
+GpsSensor.dimensions = 2
+DirectionSensor.dimensions = 1
 
 class SensorArray {
 

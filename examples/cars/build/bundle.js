@@ -291,36 +291,37 @@ Car.Sensors = (() => {
 
     return sensors.SensorBlueprint.compile([
 
-        // { type: 'distance', angle: -45, length: 5, start: [ r, t ] },
-        // { type: 'distance', angle: -30, length: 5, start: [ 0, t ] },
-        // { type: 'distance', angle: -15, length: 5, start: [ 0, t ] },
+        { type: 'distance', angle: -45, length: 5, start: [ r, t ] },
+        { type: 'distance', angle: -30, length: 5, start: [ 0, t ] },
+        { type: 'distance', angle: -15, length: 5, start: [ 0, t ] },
         { type: 'distance', angle: +00, length: 5, start: [ 0, t ] },
-        // { type: 'distance', angle: +15, length: 5, start: [ 0, t ] },
-        // { type: 'distance', angle: +30, length: 5, start: [ 0, t ] },
-        // { type: 'distance', angle: +45, length: 5, start: [ l, t ]  },
+        { type: 'distance', angle: +15, length: 5, start: [ 0, t ] },
+        { type: 'distance', angle: +30, length: 5, start: [ 0, t ] },
+        { type: 'distance', angle: +45, length: 5, start: [ l, t ]  },
 
-        // { type: 'distance', angle: +135, length: 5, start: [ l, b ]  },
-        // { type: 'distance', angle: +165, length: 5, start: [ 0, b ]  },
-        // { type: 'distance', angle: -180, length: 5, start: [ 0, b ]  },
-        // { type: 'distance', angle: -165, length: 5, start: [ 0, b ]  },
-        // { type: 'distance', angle: -135, length: 5, start: [ r, b ]  },
+		{ type: 'distance', angle: +135, length: 5, start: [ l, b ]  },
+        { type: 'distance', angle: +165, length: 5, start: [ 0, b ]  },
+        { type: 'distance', angle: -180, length: 5, start: [ 0, b ]  },
+        { type: 'distance', angle: -165, length: 5, start: [ 0, b ]  },
+        { type: 'distance', angle: -135, length: 5, start: [ r, b ]  },
 
-        // { type: 'distance', angle: -10, length: 10, start: [ 0, t ]  },
-        // { type: 'distance', angle: -03, length: 10, start: [ 0, t ]  },
-        // { type: 'distance', angle: +00, length: 10, start: [ 0, t ]  },
-        // { type: 'distance', angle: +03, length: 10, start: [ 0, t ]  },
-        // { type: 'distance', angle: +10, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: -10, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: -03, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: +00, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: +03, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: +10, length: 10, start: [ 0, t ]  },
 
-        // { type: 'distance', angle: +60, length: 5, start: [ l, 0 ]  },
-        // { type: 'distance', angle: +90, length: 5, start: [ l, 0 ]  },
-        // { type: 'distance', angle: +120, length: 5, start: [ l, 0 ]  },
+        { type: 'distance', angle: +60, length: 5, start: [ l, 0 ]  },
+        { type: 'distance', angle: +90, length: 5, start: [ l, 0 ]  },
+        { type: 'distance', angle: +120, length: 5, start: [ l, 0 ]  },
 
-        // { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
-        // { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
-        // { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
+        { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
+        { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
+        { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
         { type: 'endGoal' },
         { type: 'speed' },
-
+		{ type: 'Gps' },
+		{ type: 'Direction' },	
     ])
 })()
 
@@ -461,11 +462,13 @@ agent.prototype.step = function (dt) {
         var distance = this.getDistanceFromEndpoint()
 
         // todo: have a reward base on speed TOWARDS end goal?
-        this.reward = Math.pow(this.originalDistance/distance,2) - this.car.contact * 10 - this.car.impact * 20 + velocityAngleFromEndGoal*5
+        //this.reward = Math.pow(this.originalDistance/distance,2) - this.car.contact * 10 - this.car.impact * 20 + velocityAngleFromEndGoal*5
+		this.reward = this.originalDistance - distance - this.car.contact * 10 - this.car.impact * 20;
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
-            this.reward -= 1.0 * this.stuckCounter
+        //    this.reward -= 1.0 * this.stuckCounter
             this.stuckCounter++
+			this.reward -= 1.0;
         }
         else{
             this.stuckCounter=0;
@@ -1190,6 +1193,28 @@ class DistanceSensor extends Sensor {
 
 }
 
+class DirectionSensor extends Sensor {
+	constructor(car, opt) {
+		super()
+		this.type = "direction";
+		this.car = car;
+		this.data = new Float64Array(DirectionSensor.dimensions);
+	}
+	
+	update() {
+		this.data[0] = this.car.chassisBody.angle;
+	}
+	
+	draw(g) {
+		if (g._directionLabel === undefined) {
+			g._directionLabel = new PIXI.Text('0, 0', { font: '80px Helvetica Neue' });
+            g._directionLabel.scale.x = (g._directionLabel.scale.y = 3e-3);
+            g.addChild(g._directionLabel);
+		}
+		g._directionLabel.text = this.car.chassisBody.angle;	
+	}
+}
+
 class SpeedSensor extends Sensor {
 
     constructor(car, opt) {
@@ -1208,14 +1233,14 @@ class SpeedSensor extends Sensor {
     }
 
     draw(g) {
-        if (g.__label === undefined) {
-            g.__label = new PIXI.Text('0 km/h', { font: '80px Helvetica Neue' });
-            g.__label.scale.x = (g.__label.scale.y = 3e-3);
-            g.addChild(g.__label);
-        }
-
-        g.__label.text = Math.floor(this.velocity * 3.6) + ' km/h';
-        g.__label.rotation = -this.car.chassisBody.interpolatedAngle;
+        //if (g.__label === undefined) {
+        //    g.__label = new PIXI.Text('0 km/h', { font: '80px Helvetica Neue' });
+        //    g.__label.scale.x = (g.__label.scale.y = 3e-3);
+        //    g.addChild(g.__label);
+        //}
+//
+//        g.__label.text = Math.floor(this.velocity * 3.6) + ' km/h';
+//        g.__label.rotation = -this.car.chassisBody.interpolatedAngle;
     }
 
 }
@@ -1256,24 +1281,51 @@ class EndGoalSensor extends Sensor {
     }
     
     draw(g) {
-        if (g.__label === undefined) {
-            g.__label = new PIXI.Text('End GOALLL', {font: '80px Helvetica Neue'});
-            g.__label.scale.x = (g.__label.scale.y = 3e-3);
-            g.addChild(g.__label);
-        }
+        //if (g.__label === undefined) {
+        //    g.__label = new PIXI.Text('End GOALLL', {font: '80px Helvetica Neue'});
+        //    g.__label.scale.x = (g.__label.scale.y = 3e-3);
+        //    g.addChild(g.__label);
+        //}
     }
 }
 
+class GpsSensor extends Sensor {
+	constructor (car, opt) {
+		super()
+		this.type = "Gps";
+		this.car = car;
+		this.data = new Float64Array(GpsSensor.dimensions);
+	}
+	
+	update() {
+		this.data[0] = this.car.chassisBody.position[0];
+		this.data[1] = this.car.chassisBody.position[1];
+	}
+	
+	draw(g) {
+		//if (g._gpsLabel === undefined) {
+		//	g._gpsLabel = new PIXI.Text('0, 0', { font: '80px Helvetica Neue' });
+        //    g._gpsLabel.scale.x = (g._gpsLabel.scale.y = 3e-3);
+        //    g.addChild(g._gpsLabel);
+		//}
+		//g._gpsLabel.text = this.car.chassisBody.position[0] + ", " + this.car.chassisBody.position[1]
+		
+	}		
+}
 
 const sensorTypes = {
     "distance": DistanceSensor,
     "speed": SpeedSensor,
-    "endGoal": EndGoalSensor
+    "endGoal": EndGoalSensor,
+	"Gps": GpsSensor,
+	"Direction": DirectionSensor,
 }
 
 DistanceSensor.dimensions = 3
 SpeedSensor.dimensions = 3
 EndGoalSensor.dimensions = 4
+GpsSensor.dimensions = 2
+DirectionSensor.dimensions = 1
 
 class SensorArray {
 
@@ -2788,7 +2840,7 @@ world.prototype.step = function (dt) {
         // I also added a higher penalty for staying stuck
         // this.agents[i].isStuck() ||
         if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].timer > 10000) {
-            var possibleStartPoints = ["N","S"]
+            var possibleStartPoints = ["N"]
             var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
             this.agents[i].selfDestruct()
             this.agents[i] = new agent({}, this, possibleStartPoint)

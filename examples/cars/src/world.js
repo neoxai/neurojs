@@ -241,7 +241,7 @@ world.prototype.step = function (dt) {
         // I also added a higher penalty for staying stuck
         // this.agents[i].isStuck() ||
         if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].timer > 10000) {
-            var possibleStartPoints = ["N","S"]
+            var possibleStartPoints = ["N"]
             var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
             this.agents[i].selfDestruct()
             this.agents[i] = new agent({}, this, possibleStartPoint)

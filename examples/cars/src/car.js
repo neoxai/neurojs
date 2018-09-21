@@ -219,36 +219,37 @@ Car.Sensors = (() => {
 
     return sensors.SensorBlueprint.compile([
 
-        // { type: 'distance', angle: -45, length: 5, start: [ r, t ] },
-        // { type: 'distance', angle: -30, length: 5, start: [ 0, t ] },
-        // { type: 'distance', angle: -15, length: 5, start: [ 0, t ] },
+        { type: 'distance', angle: -45, length: 5, start: [ r, t ] },
+        { type: 'distance', angle: -30, length: 5, start: [ 0, t ] },
+        { type: 'distance', angle: -15, length: 5, start: [ 0, t ] },
         { type: 'distance', angle: +00, length: 5, start: [ 0, t ] },
-        // { type: 'distance', angle: +15, length: 5, start: [ 0, t ] },
-        // { type: 'distance', angle: +30, length: 5, start: [ 0, t ] },
-        // { type: 'distance', angle: +45, length: 5, start: [ l, t ]  },
+        { type: 'distance', angle: +15, length: 5, start: [ 0, t ] },
+        { type: 'distance', angle: +30, length: 5, start: [ 0, t ] },
+        { type: 'distance', angle: +45, length: 5, start: [ l, t ]  },
 
-        // { type: 'distance', angle: +135, length: 5, start: [ l, b ]  },
-        // { type: 'distance', angle: +165, length: 5, start: [ 0, b ]  },
-        // { type: 'distance', angle: -180, length: 5, start: [ 0, b ]  },
-        // { type: 'distance', angle: -165, length: 5, start: [ 0, b ]  },
-        // { type: 'distance', angle: -135, length: 5, start: [ r, b ]  },
+		{ type: 'distance', angle: +135, length: 5, start: [ l, b ]  },
+        { type: 'distance', angle: +165, length: 5, start: [ 0, b ]  },
+        { type: 'distance', angle: -180, length: 5, start: [ 0, b ]  },
+        { type: 'distance', angle: -165, length: 5, start: [ 0, b ]  },
+        { type: 'distance', angle: -135, length: 5, start: [ r, b ]  },
 
-        // { type: 'distance', angle: -10, length: 10, start: [ 0, t ]  },
-        // { type: 'distance', angle: -03, length: 10, start: [ 0, t ]  },
-        // { type: 'distance', angle: +00, length: 10, start: [ 0, t ]  },
-        // { type: 'distance', angle: +03, length: 10, start: [ 0, t ]  },
-        // { type: 'distance', angle: +10, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: -10, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: -03, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: +00, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: +03, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: +10, length: 10, start: [ 0, t ]  },
 
-        // { type: 'distance', angle: +60, length: 5, start: [ l, 0 ]  },
-        // { type: 'distance', angle: +90, length: 5, start: [ l, 0 ]  },
-        // { type: 'distance', angle: +120, length: 5, start: [ l, 0 ]  },
+        { type: 'distance', angle: +60, length: 5, start: [ l, 0 ]  },
+        { type: 'distance', angle: +90, length: 5, start: [ l, 0 ]  },
+        { type: 'distance', angle: +120, length: 5, start: [ l, 0 ]  },
 
-        // { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
-        // { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
-        // { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
+        { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
+        { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
+        { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
         { type: 'endGoal' },
         { type: 'speed' },
-
+		{ type: 'Gps' },
+		{ type: 'Direction' },	
     ])
 })()
 
