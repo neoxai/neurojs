@@ -22,6 +22,7 @@ function agent(opt, world, startPoint) {
     this.reward = 0
     this.loaded = false
     this.stuckCounter=0;
+    this.previousDistance=0
 
     this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX,2) 
                                     + Math.pow(this.endPoint.posY - this.startPoint.posY,2))
@@ -92,16 +93,18 @@ agent.prototype.step = function (dt) {
 
         var distance = this.getDistanceFromEndpoint()
 
-        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20 
-        this.reward += (this.originalDistance - distance) * .25
+        // todo: have a reward base on speed TOWARDS end goal?
+        this.reward = (this.originalDistance - distance) - this.car.contact * 10 - this.car.impact * 20 
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
-            this.reward -= 1.0 
+            this.reward -= 1.0 * this.stuckCounter
             this.stuckCounter++
         }
         else{
             this.stuckCounter=0;
         }
+
+        this.previousDistance = distance
 
         this.loss = this.brain.learn(this.reward)
         this.action = this.brain.policy(this.car.sensors.data)

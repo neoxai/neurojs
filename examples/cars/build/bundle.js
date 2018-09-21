@@ -290,33 +290,33 @@ Car.Sensors = (() => {
 
     return sensors.SensorBlueprint.compile([
 
-        { type: 'distance', angle: -45, length: 5, start: [ r, t ] },
-        { type: 'distance', angle: -30, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: -15, length: 5, start: [ 0, t ] },
+        // { type: 'distance', angle: -45, length: 5, start: [ r, t ] },
+        // { type: 'distance', angle: -30, length: 5, start: [ 0, t ] },
+        // { type: 'distance', angle: -15, length: 5, start: [ 0, t ] },
         { type: 'distance', angle: +00, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +15, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +30, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +45, length: 5, start: [ l, t ]  },
+        // { type: 'distance', angle: +15, length: 5, start: [ 0, t ] },
+        // { type: 'distance', angle: +30, length: 5, start: [ 0, t ] },
+        // { type: 'distance', angle: +45, length: 5, start: [ l, t ]  },
 
-        { type: 'distance', angle: +135, length: 5, start: [ l, b ]  },
-        { type: 'distance', angle: +165, length: 5, start: [ 0, b ]  },
-        { type: 'distance', angle: -180, length: 5, start: [ 0, b ]  },
-        { type: 'distance', angle: -165, length: 5, start: [ 0, b ]  },
-        { type: 'distance', angle: -135, length: 5, start: [ r, b ]  },
+        // { type: 'distance', angle: +135, length: 5, start: [ l, b ]  },
+        // { type: 'distance', angle: +165, length: 5, start: [ 0, b ]  },
+        // { type: 'distance', angle: -180, length: 5, start: [ 0, b ]  },
+        // { type: 'distance', angle: -165, length: 5, start: [ 0, b ]  },
+        // { type: 'distance', angle: -135, length: 5, start: [ r, b ]  },
 
-        { type: 'distance', angle: -10, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: -03, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: +00, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: +03, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: +10, length: 10, start: [ 0, t ]  },
+        // { type: 'distance', angle: -10, length: 10, start: [ 0, t ]  },
+        // { type: 'distance', angle: -03, length: 10, start: [ 0, t ]  },
+        // { type: 'distance', angle: +00, length: 10, start: [ 0, t ]  },
+        // { type: 'distance', angle: +03, length: 10, start: [ 0, t ]  },
+        // { type: 'distance', angle: +10, length: 10, start: [ 0, t ]  },
 
-        { type: 'distance', angle: +60, length: 5, start: [ l, 0 ]  },
-        { type: 'distance', angle: +90, length: 5, start: [ l, 0 ]  },
-        { type: 'distance', angle: +120, length: 5, start: [ l, 0 ]  },
+        // { type: 'distance', angle: +60, length: 5, start: [ l, 0 ]  },
+        // { type: 'distance', angle: +90, length: 5, start: [ l, 0 ]  },
+        // { type: 'distance', angle: +120, length: 5, start: [ l, 0 ]  },
 
-        { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
-        { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
-        { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
+        // { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
+        // { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
+        // { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
         { type: 'endGoal' },
         { type: 'speed' },
 
@@ -386,6 +386,7 @@ function agent(opt, world, startPoint) {
     this.reward = 0
     this.loaded = false
     this.stuckCounter=0;
+    this.previousDistance=0
 
     this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX,2) 
                                     + Math.pow(this.endPoint.posY - this.startPoint.posY,2))
@@ -456,16 +457,17 @@ agent.prototype.step = function (dt) {
 
         var distance = this.getDistanceFromEndpoint()
 
-        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20 
-        this.reward += (this.originalDistance - distance) * .25
+        this.reward = (this.originalDistance - distance) - this.car.contact * 10 - this.car.impact * 20 
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
-            this.reward -= 1.0 
+            this.reward -= 1.0 * this.stuckCounter
             this.stuckCounter++
         }
         else{
             this.stuckCounter=0;
         }
+
+        this.previousDistance = distance
 
         this.loss = this.brain.learn(this.reward)
         this.action = this.brain.policy(this.car.sensors.data)
@@ -1219,7 +1221,6 @@ class EndGoalSensor extends Sensor {
         super()
         this.type = "endGoal"
         this.car = car
-        console.log(opt.endGoal)
         this.data = new Float64Array(EndGoalSensor.dimensions)
     }
 
@@ -1229,7 +1230,13 @@ class EndGoalSensor extends Sensor {
         var endPosX = this.car.endPoint.posX
         var endPosY = this.car.endPoint.posY
 
-        this.data[0] = Math.sqrt(Math.pow(endPosX - posX, 2) + Math.pow(endPosY - posY, 2))
+        var resultantVec = p2.vec2.fromValues(endPosX-posX, endPosY-posY)
+
+        // Math.sqrt(Math.pow(endPosX - posX, 2) + Math.pow(endPosY - posY, 2))
+
+        this.data[0] = p2.vec2.len(resultantVec)
+        this.data[1] = resultantVec[0]
+        this.data[2] = resultantVec[1]
     }
     
     draw(g) {
@@ -1250,7 +1257,7 @@ const sensorTypes = {
 
 DistanceSensor.dimensions = 3
 SpeedSensor.dimensions = 3
-EndGoalSensor.dimensions = 1
+EndGoalSensor.dimensions = 3
 
 class SensorArray {
 

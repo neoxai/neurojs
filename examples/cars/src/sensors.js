@@ -126,7 +126,6 @@ class EndGoalSensor extends Sensor {
         super()
         this.type = "endGoal"
         this.car = car
-        console.log(opt.endGoal)
         this.data = new Float64Array(EndGoalSensor.dimensions)
     }
 
@@ -136,7 +135,13 @@ class EndGoalSensor extends Sensor {
         var endPosX = this.car.endPoint.posX
         var endPosY = this.car.endPoint.posY
 
-        this.data[0] = Math.sqrt(Math.pow(endPosX - posX, 2) + Math.pow(endPosY - posY, 2))
+        var resultantVec = p2.vec2.fromValues(endPosX-posX, endPosY-posY)
+
+        // Math.sqrt(Math.pow(endPosX - posX, 2) + Math.pow(endPosY - posY, 2))
+
+        this.data[0] = p2.vec2.len(resultantVec)
+        this.data[1] = resultantVec[0]
+        this.data[2] = resultantVec[1]
     }
     
     draw(g) {
@@ -157,7 +162,7 @@ const sensorTypes = {
 
 DistanceSensor.dimensions = 3
 SpeedSensor.dimensions = 3
-EndGoalSensor.dimensions = 1
+EndGoalSensor.dimensions = 3
 
 class SensorArray {
 
