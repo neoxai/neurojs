@@ -121,14 +121,43 @@ class SpeedSensor extends Sensor {
 
 }
 
+class EndGoalSensor extends Sensor {
+    constructor (car, opt) {
+        super()
+        this.type = "endGoal"
+        this.car = car
+        console.log(opt.endGoal)
+        this.data = new Float64Array(EndGoalSensor.dimensions)
+    }
+
+    update() {
+        var posX = this.car.chassisBody.position[0]
+        var posY = this.car.chassisBody.position[1]
+        var endPosX = this.car.endPoint.posX
+        var endPosY = this.car.endPoint.posY
+
+        this.data[0] = Math.sqrt(Math.pow(endPosX - posX, 2) + Math.pow(endPosY - posY, 2))
+    }
+    
+    draw(g) {
+        if (g.__label === undefined) {
+            g.__label = new PIXI.Text('End GOALLL', {font: '80px Helvetica Neue'});
+            g.__label.scale.x = (g.__label.scale.y = 3e-3);
+            g.addChild(g.__label);
+        }
+    }
+}
+
 
 const sensorTypes = {
     "distance": DistanceSensor,
-    "speed": SpeedSensor
+    "speed": SpeedSensor,
+    "endGoal": EndGoalSensor
 }
 
 DistanceSensor.dimensions = 3
 SpeedSensor.dimensions = 3
+EndGoalSensor.dimensions = 1
 
 class SensorArray {
 

@@ -88,6 +88,8 @@ class Car {
 
         this.world = world
 
+        this.endPoint = opt.endPoint
+
         this.init()
     }
 
@@ -315,7 +317,7 @@ Car.Sensors = (() => {
         { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
         { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
         { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
-
+        { type: 'endGoal' },
         { type: 'speed' },
 
     ])
@@ -364,15 +366,6 @@ var car = __webpack_require__(0);
 
 
 function agent(opt, world, startPoint) {
-    this.car = new car(world, {})
-    this.options = opt
-
-    this.world = world
-    this.frequency = 20
-    this.reward = 0
-    this.loaded = false
-    this.stuckCounter=0;
-
     this.North = {posX: 0, posY: -10, angle: 0};
     this.South = {posX: 0, posY: 10, angle: Math.PI}
 
@@ -384,6 +377,15 @@ function agent(opt, world, startPoint) {
         this.startPoint = this.South
         this.endPoint = this.North
     }
+
+    this.car = new car(world, { endPoint: this.endPoint })
+    this.options = opt
+
+    this.world = world
+    this.frequency = 20
+    this.reward = 0
+    this.loaded = false
+    this.stuckCounter=0;
 
     this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX,2) 
                                     + Math.pow(this.endPoint.posY - this.startPoint.posY,2))
@@ -1212,14 +1214,43 @@ class SpeedSensor extends Sensor {
 
 }
 
+class EndGoalSensor extends Sensor {
+    constructor (car, opt) {
+        super()
+        this.type = "endGoal"
+        this.car = car
+        console.log(opt.endGoal)
+        this.data = new Float64Array(EndGoalSensor.dimensions)
+    }
+
+    update() {
+        var posX = this.car.chassisBody.position[0]
+        var posY = this.car.chassisBody.position[1]
+        var endPosX = this.car.endPoint.posX
+        var endPosY = this.car.endPoint.posY
+
+        this.data[0] = Math.sqrt(Math.pow(endPosX - posX, 2) + Math.pow(endPosY - posY, 2))
+    }
+    
+    draw(g) {
+        if (g.__label === undefined) {
+            g.__label = new PIXI.Text('End GOALLL', {font: '80px Helvetica Neue'});
+            g.__label.scale.x = (g.__label.scale.y = 3e-3);
+            g.addChild(g.__label);
+        }
+    }
+}
+
 
 const sensorTypes = {
     "distance": DistanceSensor,
-    "speed": SpeedSensor
+    "speed": SpeedSensor,
+    "endGoal": EndGoalSensor
 }
 
 DistanceSensor.dimensions = 3
 SpeedSensor.dimensions = 3
+EndGoalSensor.dimensions = 1
 
 class SensorArray {
 
@@ -2654,9 +2685,9 @@ world.prototype.init = function (renderer) {
 world.prototype.populate = function (n) {
 
     var ag1 = new agent({}, this, "N")
-    var ag = new agent({}, this, "S")
+    //var ag = new agent({}, this, "S")
 
-    this.agents.push(ag);
+    //this.agents.push(ag);
     this.agents.push(ag1);
 
     var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
@@ -2670,7 +2701,7 @@ world.prototype.populate = function (n) {
 
     var color = 0xEDBB99
     var circlePoints = this.addCircle(0, 0, 1, 60);
-    this.addBodyFromPoints(circlePoints, color);
+    //this.addBodyFromPoints(circlePoints, color);
 };
 
 world.prototype.addCircle = function (cx, cy, radius, numPoints) {

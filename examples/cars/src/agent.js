@@ -2,15 +2,6 @@ var car = require('./car.js');
 
 
 function agent(opt, world, startPoint) {
-    this.car = new car(world, {})
-    this.options = opt
-
-    this.world = world
-    this.frequency = 20
-    this.reward = 0
-    this.loaded = false
-    this.stuckCounter=0;
-
     this.North = {posX: 0, posY: -10, angle: 0};
     this.South = {posX: 0, posY: 10, angle: Math.PI}
 
@@ -22,6 +13,15 @@ function agent(opt, world, startPoint) {
         this.startPoint = this.South
         this.endPoint = this.North
     }
+
+    this.car = new car(world, { endPoint: this.endPoint })
+    this.options = opt
+
+    this.world = world
+    this.frequency = 20
+    this.reward = 0
+    this.loaded = false
+    this.stuckCounter=0;
 
     this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX,2) 
                                     + Math.pow(this.endPoint.posY - this.startPoint.posY,2))

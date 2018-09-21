@@ -16,6 +16,8 @@ class Car {
 
         this.world = world
 
+        this.endPoint = opt.endPoint
+
         this.init()
     }
 
@@ -243,7 +245,7 @@ Car.Sensors = (() => {
         { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
         { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
         { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
-
+        { type: 'endGoal' },
         { type: 'speed' },
 
     ])
