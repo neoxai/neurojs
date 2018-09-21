@@ -9,31 +9,41 @@ function agent(opt, world, startPoint) {
     this.frequency = 20
     this.reward = 0
     this.loaded = false
-    this.stuckCounter=0;
+    this.stuckCounter = 0;
 
-    this.North = {posX: 0, posY: -10, angle: 0};
-    this.South = {posX: 0, posY: 10, angle: Math.PI}
+    this.North = { posX: 2, posY: -10, angle: 0 };
+    this.South = { posX: -2, posY: 10, angle: Math.PI }
+    this.East = { posX: 15, posY: -2, angle: Math.PI / 2 }
+    this.West = { posX: -15, posY: 2, angle: - Math.PI / 2 }
 
     if (startPoint == "N") {
         this.startPoint = this.North
         this.endPoint = this.South
+    }
+    else if (startPoint == "E") {
+        this.startPoint = this.East
+        this.endPoint = this.West
+    }
+    else if (startPoint == "W") {
+        this.startPoint = this.West
+        this.endPoint = this.East
     }
     else {
         this.startPoint = this.South
         this.endPoint = this.North
     }
 
-    this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX,2) 
-                                    + Math.pow(this.endPoint.posY - this.startPoint.posY,2))
+    this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX, 2)
+        + Math.pow(this.endPoint.posY - this.startPoint.posY, 2))
 
     this.loss = 0
     this.timer = 0
     this.timerFrequency = 60 / this.frequency
 
     if (this.options.dynamicallyLoaded !== true) {
-    	this.init(world.brains.actor.newConfiguration(), null)
+        this.init(world.brains.actor.newConfiguration(), null)
     }
-    
+
 };
 
 agent.prototype.init = function (actor, critic) {
@@ -53,14 +63,14 @@ agent.prototype.init = function (actor, critic) {
 
         algorithm: 'ddpg',
 
-        temporalWindow: temporal, 
+        temporalWindow: temporal,
 
-        discount: 0.97, 
+        discount: 0.97,
 
-        experience: 75e3, 
+        experience: 75e3,
         // buffer: window.neurojs.Buffers.UniformReplayBuffer,
-        
-        learningPerTick: 40, 
+
+        learningPerTick: 40,
         startLearningAt: 900,
 
         theta: 0.05, // progressive copy
@@ -74,13 +84,13 @@ agent.prototype.init = function (actor, critic) {
 
     this.actions = actions
     this.car.addToWorldWithPos(this.startPoint)
-	this.loaded = true
+    this.loaded = true
 };
 
 agent.prototype.step = function (dt) {
-	if (!this.loaded) {
-		return 
-	}
+    if (!this.loaded) {
+        return
+    }
 
     this.timer++
 
@@ -92,24 +102,24 @@ agent.prototype.step = function (dt) {
 
         var distance = this.getDistanceFromEndpoint()
 
-        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20 
+        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
         this.reward += (this.originalDistance - distance) * .25
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
-            this.reward -= 1.0 
+            this.reward -= 1.0
             this.stuckCounter++
         }
-        else{
-            this.stuckCounter=0;
+        else {
+            this.stuckCounter = 0;
         }
 
         this.loss = this.brain.learn(this.reward)
         this.action = this.brain.policy(this.car.sensors.data)
-        
+
         this.car.impact = 0
         this.car.step()
     }
-    
+
     if (this.action) {
         this.car.handle(this.action[0], this.action[1])
     }
@@ -117,18 +127,18 @@ agent.prototype.step = function (dt) {
     return this.timer % this.timerFrequency === 0
 };
 
-agent.prototype.isStuck = function(){
- return (this.stuckCounter > 100) 
+agent.prototype.isStuck = function () {
+    return (this.stuckCounter > 100)
 
 }
-agent.prototype.selfDestruct = function(){
+agent.prototype.selfDestruct = function () {
     this.car.removeFromWorld()
 }
-agent.prototype.getDistanceFromEndpoint = function() {
+agent.prototype.getDistanceFromEndpoint = function () {
     var carX = this.car.chassisBody.position[0]
     var carY = this.car.chassisBody.position[1]
 
-    return Math.sqrt(Math.pow(this.endPoint.posX - carX,2) + Math.pow(this.endPoint.posY - carY,2))
+    return Math.sqrt(Math.pow(this.endPoint.posX - carX, 2) + Math.pow(this.endPoint.posY - carY, 2))
 };
 
 agent.prototype.draw = function (context) {

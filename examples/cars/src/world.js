@@ -159,25 +159,29 @@ world.prototype.init = function (renderer) {
 };
 
 world.prototype.populate = function (n) {
+    var agN = new agent({}, this, "N")
+    var agS = new agent({}, this, "S")
+    var agE = new agent({}, this, "E")
+    var agW = new agent({}, this, "W")
 
-    var ag1 = new agent({}, this, "N")
-    //var ag = new agent({}, this, "S")
+    this.agents.push(agN);
+    this.agents.push(agS);
+    this.agents.push(agE);
+    this.agents.push(agW);
 
-    //this.agents.push(ag);
-    this.agents.push(ag1);
+    var wx = this.size.w / 2, hy = this.size.h / 2
 
-    var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
+    var carWidth = 1.2
+    this.buildQuadrant(wx, hy, carWidth, -1, -1);
+    this.buildQuadrant(wx, hy, carWidth, -1, 1);
+    this.buildQuadrant(wx, hy, carWidth, 1, -1);
+    this.buildQuadrant(wx, hy, carWidth, 1, 1);
 
-    // this.buildQuadrant(wx, hy, 1.2, -1, -1);
-    // this.buildQuadrant(wx, hy, 1.2, -1, 1);
-    // this.buildQuadrant(wx, hy, 1.2, 1, -1);
-    // this.buildQuadrant(wx, hy, 1.2, 1, 1);
-
-    // //this.buildTwoLaneRoad(wx, hy, 1.2)
+    //this.buildTwoLaneRoad(wx, hy, 6)
 
     var color = 0xEDBB99
     var circlePoints = this.addCircle(0, 0, 1, 60);
-    //this.addBodyFromPoints(circlePoints, color);
+    this.addBodyFromPoints(circlePoints, color);
 };
 
 world.prototype.addCircle = function (cx, cy, radius, numPoints) {
@@ -199,27 +203,27 @@ world.prototype.flip = function (points, flipX, flipY) {
 }
 world.prototype.buildQuadrant = function (wx, hy, carWidth, flipX, flipY) {
     var color = 0xD0ECE7
-    var box1 = [[carWidth, hy], [carWidth, hy - 5 * carWidth], [wx, hy - 5 * carWidth], [wx, hy]];
+    var box1 = [[carWidth, hy], [carWidth, hy - 8 * carWidth], [wx, hy - 6 * carWidth], [wx, hy]];
     this.flip(box1, flipX, flipY);
-    this.addBodyFromPoints(box1, color);
+    // this.addBodyFromPoints(box1, color);
 
-    var box2 = [[5 * carWidth, carWidth], [wx, carWidth], [wx, hy], [5 * carWidth, hy]];
+    var box2 = [[8 * carWidth, 4.8], [wx, 4.8], [wx, hy], [8 * carWidth, hy]];
     this.flip(box2, flipX, flipY);
     this.addBodyFromPoints(box2, color);
 
-    var circle = this.addCircle(5 * carWidth, 5 * carWidth, 4 * carWidth, 60);
+    var circle = this.addCircle(8 * carWidth, 8 * carWidth, 4 * carWidth, 60);
     this.flip(circle, flipX, flipY);
     this.addBodyFromPoints(circle, color);
 }
 
 world.prototype.buildTwoLaneRoad = function (wx, hy, carWidth) {
-
+    var color = 0xD6DBDF
 
     var leftSide = [[-wx, -hy], [-carWidth, -hy], [-carWidth, hy], [-wx, hy]]
-    this.addBodyFromPoints(leftSide)
+    this.addBodyFromPoints(leftSide, color)
 
     var rightSide = [[carWidth, -hy], [wx, -hy], [wx, hy], [carWidth, hy]]
-    this.addBodyFromPoints(rightSide)
+    this.addBodyFromPoints(rightSide, color)
 }
 
 world.prototype.resize = function (renderer) {
@@ -236,10 +240,10 @@ world.prototype.step = function (dt) {
         loss += this.agents[i].loss
         reward += this.agents[i].reward
 
-        
+
         if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].isStuck()) {
-            var possibleStartPoints = ["N","S"]
-            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
+            var possibleStartPoints = ["N", "S", "E", "W"]
+            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random() * possibleStartPoints.length)];
             this.agents[i].selfDestruct()
             this.agents[i] = new agent({}, this, possibleStartPoint)
         }

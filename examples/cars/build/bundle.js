@@ -129,7 +129,7 @@ class Car {
             var w = 0.12, h = 0.22
             var space = 0.07
             var col = "#" + this.chassisBody.color.toString(16)
-                col = parseInt(tc(col).darken(50).toHex(), 16)
+            col = parseInt(tc(col).darken(50).toHex(), 16)
             var alpha = 0.35, alphal = 0.9
 
             var tl = new PIXI.Graphics()
@@ -162,7 +162,7 @@ class Car {
             // wheels.lineStyle(0.01, col, alphal)
             wheels.drawRect(0.25 - w / 2, -0.5 + space, w, h)
             wheels.endFill()
-        }).bind(this); 
+        }).bind(this);
 
         // Create the vehicle
         this.vehicle = new p2.TopDownVehicle(this.chassisBody);
@@ -193,16 +193,16 @@ class Car {
             return
         }
 
-        this.overlay.clear() 
+        this.overlay.clear()
         this.sensors.draw(this.overlay)
     }
 
     handle(throttle, steer) {
         // Steer value zero means straight forward. Positive is left and negative right.
-        this.frontWheel.steerValue = this.maxSteer * steer
+        this.frontWheel.steerValue = 0; //this.maxSteer * steer
 
         // Engine force forward
-        var force = throttle * this.maxEngineForce
+        var force = 1; //throttle * this.maxEngineForce
         if (force < 0) {
             if (this.backWheel.getSpeed() > 0.1) {
                 this.backWheel.setBrakeForce(-throttle * this.maxBrakeForce)
@@ -231,26 +231,34 @@ class Car {
         }
     }
 
-    addToCardinal(nsew){
-        if(nsew ==="N"){
-            this.addToWorldWithPos({posX:0, posY:-10, angle:-1*Math.PI});
+    addToCardinal(nsew) {
+        if (nsew === "N") {
+            this.addToWorldWithPos({ posX: 0, posY: -10, angle: -1 * Math.PI });
         }
-        if(nsew ==="S"){
-            this.addToWorldWithPos({posX:0, posY:10, angle:Math.PI});
+        if (nsew === "S") {
+            this.addToWorldWithPos({ posX: 0, posY: 10, angle: Math.PI });
+        }
+        if (nsew === "E") {
+            this.addToWorldWithPos({ posX: 15, posY: -3, angle: Math.PI / 2 });
+        }
+        if (nsew === "W") {
+            this.addToWorldWithPos({ posX: -15, posY: 3, angle: - Math.PI / 2 });
         }
     }
     addToWorld() {
-        var initial={posX: (Math.random() - .5) * this.world.size.w,
-        posY: (Math.random() - .5) * this.world.size.h,
-        angle:(Math.random() * 2.0 - 1.0) * Math.PI}
-            this.addToWorldWithPos(initial);
+        var initial = {
+            posX: (Math.random() - .5) * this.world.size.w,
+            posY: (Math.random() - .5) * this.world.size.h,
+            angle: (Math.random() * 2.0 - 1.0) * Math.PI
+        }
+        this.addToWorldWithPos(initial);
 
     }
 
     addToWorldWithPos(initialPos) {
-        this.chassisBody.position[0] =initialPos.posX
+        this.chassisBody.position[0] = initialPos.posX
         this.chassisBody.position[1] = initialPos.posY
-        this.chassisBody.angle =initialPos.angle
+        this.chassisBody.angle = initialPos.angle
 
         this.world.p2.addBody(this.chassisBody)
         this.vehicle.addToWorld(this.world.p2)
@@ -263,7 +271,7 @@ class Car {
 
         this.world.p2.on("endContact", (event) => {
             if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
-               this.contact--;
+                this.contact--;
             }
         })
 
@@ -273,7 +281,7 @@ class Car {
             }
         })
     }
-    removeFromWorld(){
+    removeFromWorld() {
         this.world.p2.removeBody(this.chassisBody);
         this.vehicle.removeFromWorld(this.world.p2);
     }
@@ -288,33 +296,33 @@ Car.Sensors = (() => {
 
     return sensors.SensorBlueprint.compile([
 
-        { type: 'distance', angle: -45, length: 5, start: [ r, t ] },
-        { type: 'distance', angle: -30, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: -15, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +00, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +15, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +30, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +45, length: 5, start: [ l, t ]  },
+        { type: 'distance', angle: -45, length: 5, start: [r, t] },
+        { type: 'distance', angle: -30, length: 5, start: [0, t] },
+        { type: 'distance', angle: -15, length: 5, start: [0, t] },
+        { type: 'distance', angle: +00, length: 5, start: [0, t] },
+        { type: 'distance', angle: +15, length: 5, start: [0, t] },
+        { type: 'distance', angle: +30, length: 5, start: [0, t] },
+        { type: 'distance', angle: +45, length: 5, start: [l, t] },
 
-        { type: 'distance', angle: +135, length: 5, start: [ l, b ]  },
-        { type: 'distance', angle: +165, length: 5, start: [ 0, b ]  },
-        { type: 'distance', angle: -180, length: 5, start: [ 0, b ]  },
-        { type: 'distance', angle: -165, length: 5, start: [ 0, b ]  },
-        { type: 'distance', angle: -135, length: 5, start: [ r, b ]  },
+        { type: 'distance', angle: +135, length: 5, start: [l, b] },
+        { type: 'distance', angle: +165, length: 5, start: [0, b] },
+        { type: 'distance', angle: -180, length: 5, start: [0, b] },
+        { type: 'distance', angle: -165, length: 5, start: [0, b] },
+        { type: 'distance', angle: -135, length: 5, start: [r, b] },
 
-        { type: 'distance', angle: -10, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: -03, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: +00, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: +03, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: +10, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: -10, length: 10, start: [0, t] },
+        { type: 'distance', angle: -03, length: 10, start: [0, t] },
+        { type: 'distance', angle: +00, length: 10, start: [0, t] },
+        { type: 'distance', angle: +03, length: 10, start: [0, t] },
+        { type: 'distance', angle: +10, length: 10, start: [0, t] },
 
-        { type: 'distance', angle: +60, length: 5, start: [ l, 0 ]  },
-        { type: 'distance', angle: +90, length: 5, start: [ l, 0 ]  },
-        { type: 'distance', angle: +120, length: 5, start: [ l, 0 ]  },
+        { type: 'distance', angle: +60, length: 5, start: [l, 0] },
+        { type: 'distance', angle: +90, length: 5, start: [l, 0] },
+        { type: 'distance', angle: +120, length: 5, start: [l, 0] },
 
-        { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
-        { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
-        { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
+        { type: 'distance', angle: -60, length: 5, start: [r, 0] },
+        { type: 'distance', angle: -90, length: 5, start: [r, 0] },
+        { type: 'distance', angle: -120, length: 5, start: [r, 0] },
 
         { type: 'speed' },
 
@@ -371,31 +379,41 @@ function agent(opt, world, startPoint) {
     this.frequency = 20
     this.reward = 0
     this.loaded = false
-    this.stuckCounter=0;
+    this.stuckCounter = 0;
 
-    this.North = {posX: 0, posY: -10, angle: 0};
-    this.South = {posX: 0, posY: 10, angle: Math.PI}
+    this.North = { posX: 2, posY: -10, angle: 0 };
+    this.South = { posX: -2, posY: 10, angle: Math.PI }
+    this.East = { posX: 15, posY: -2, angle: Math.PI / 2 }
+    this.West = { posX: -15, posY: 2, angle: - Math.PI / 2 }
 
     if (startPoint == "N") {
         this.startPoint = this.North
         this.endPoint = this.South
+    }
+    else if (startPoint == "E") {
+        this.startPoint = this.East
+        this.endPoint = this.West
+    }
+    else if (startPoint == "W") {
+        this.startPoint = this.West
+        this.endPoint = this.East
     }
     else {
         this.startPoint = this.South
         this.endPoint = this.North
     }
 
-    this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX,2) 
-                                    + Math.pow(this.endPoint.posY - this.startPoint.posY,2))
+    this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX, 2)
+        + Math.pow(this.endPoint.posY - this.startPoint.posY, 2))
 
     this.loss = 0
     this.timer = 0
     this.timerFrequency = 60 / this.frequency
 
     if (this.options.dynamicallyLoaded !== true) {
-    	this.init(world.brains.actor.newConfiguration(), null)
+        this.init(world.brains.actor.newConfiguration(), null)
     }
-    
+
 };
 
 agent.prototype.init = function (actor, critic) {
@@ -415,14 +433,14 @@ agent.prototype.init = function (actor, critic) {
 
         algorithm: 'ddpg',
 
-        temporalWindow: temporal, 
+        temporalWindow: temporal,
 
-        discount: 0.97, 
+        discount: 0.97,
 
-        experience: 75e3, 
+        experience: 75e3,
         // buffer: window.neurojs.Buffers.UniformReplayBuffer,
-        
-        learningPerTick: 40, 
+
+        learningPerTick: 40,
         startLearningAt: 900,
 
         theta: 0.05, // progressive copy
@@ -436,13 +454,13 @@ agent.prototype.init = function (actor, critic) {
 
     this.actions = actions
     this.car.addToWorldWithPos(this.startPoint)
-	this.loaded = true
+    this.loaded = true
 };
 
 agent.prototype.step = function (dt) {
-	if (!this.loaded) {
-		return 
-	}
+    if (!this.loaded) {
+        return
+    }
 
     this.timer++
 
@@ -454,24 +472,24 @@ agent.prototype.step = function (dt) {
 
         var distance = this.getDistanceFromEndpoint()
 
-        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20 
+        this.reward = Math.pow(vel[1], 2) - 0.10 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
         this.reward += (this.originalDistance - distance) * .25
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
-            this.reward -= 1.0 
+            this.reward -= 1.0
             this.stuckCounter++
         }
-        else{
-            this.stuckCounter=0;
+        else {
+            this.stuckCounter = 0;
         }
 
         this.loss = this.brain.learn(this.reward)
         this.action = this.brain.policy(this.car.sensors.data)
-        
+
         this.car.impact = 0
         this.car.step()
     }
-    
+
     if (this.action) {
         this.car.handle(this.action[0], this.action[1])
     }
@@ -479,18 +497,18 @@ agent.prototype.step = function (dt) {
     return this.timer % this.timerFrequency === 0
 };
 
-agent.prototype.isStuck = function(){
- return (this.stuckCounter > 100) 
+agent.prototype.isStuck = function () {
+    return (this.stuckCounter > 100)
 
 }
-agent.prototype.selfDestruct = function(){
+agent.prototype.selfDestruct = function () {
     this.car.removeFromWorld()
 }
-agent.prototype.getDistanceFromEndpoint = function() {
+agent.prototype.getDistanceFromEndpoint = function () {
     var carX = this.car.chassisBody.position[0]
     var carY = this.car.chassisBody.position[1]
 
-    return Math.sqrt(Math.pow(this.endPoint.posX - carX,2) + Math.pow(this.endPoint.posY - carY,2))
+    return Math.sqrt(Math.pow(this.endPoint.posX - carX, 2) + Math.pow(this.endPoint.posY - carY, 2))
 };
 
 agent.prototype.draw = function (context) {
@@ -2652,21 +2670,25 @@ world.prototype.init = function (renderer) {
 };
 
 world.prototype.populate = function (n) {
+    var agN = new agent({}, this, "N")
+    var agS = new agent({}, this, "S")
+    var agE = new agent({}, this, "E")
+    var agW = new agent({}, this, "W")
 
-    var ag1 = new agent({}, this, "N")
-    var ag = new agent({}, this, "S")
+    this.agents.push(agN);
+    this.agents.push(agS);
+    this.agents.push(agE);
+    this.agents.push(agW);
 
-    this.agents.push(ag);
-    this.agents.push(ag1);
+    var wx = this.size.w / 2, hy = this.size.h / 2
 
-    var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
+    var carWidth = 1.2
+    this.buildQuadrant(wx, hy, carWidth, -1, -1);
+    this.buildQuadrant(wx, hy, carWidth, -1, 1);
+    this.buildQuadrant(wx, hy, carWidth, 1, -1);
+    this.buildQuadrant(wx, hy, carWidth, 1, 1);
 
-    // this.buildQuadrant(wx, hy, 1.2, -1, -1);
-    // this.buildQuadrant(wx, hy, 1.2, -1, 1);
-    // this.buildQuadrant(wx, hy, 1.2, 1, -1);
-    // this.buildQuadrant(wx, hy, 1.2, 1, 1);
-
-    // //this.buildTwoLaneRoad(wx, hy, 1.2)
+    //this.buildTwoLaneRoad(wx, hy, 6)
 
     var color = 0xEDBB99
     var circlePoints = this.addCircle(0, 0, 1, 60);
@@ -2692,27 +2714,27 @@ world.prototype.flip = function (points, flipX, flipY) {
 }
 world.prototype.buildQuadrant = function (wx, hy, carWidth, flipX, flipY) {
     var color = 0xD0ECE7
-    var box1 = [[carWidth, hy], [carWidth, hy - 5 * carWidth], [wx, hy - 5 * carWidth], [wx, hy]];
+    var box1 = [[carWidth, hy], [carWidth, hy - 8 * carWidth], [wx, hy - 6 * carWidth], [wx, hy]];
     this.flip(box1, flipX, flipY);
-    this.addBodyFromPoints(box1, color);
+    // this.addBodyFromPoints(box1, color);
 
-    var box2 = [[5 * carWidth, carWidth], [wx, carWidth], [wx, hy], [5 * carWidth, hy]];
+    var box2 = [[8 * carWidth, 4.8], [wx, 4.8], [wx, hy], [8 * carWidth, hy]];
     this.flip(box2, flipX, flipY);
     this.addBodyFromPoints(box2, color);
 
-    var circle = this.addCircle(5 * carWidth, 5 * carWidth, 4 * carWidth, 60);
+    var circle = this.addCircle(8 * carWidth, 8 * carWidth, 4 * carWidth, 60);
     this.flip(circle, flipX, flipY);
     this.addBodyFromPoints(circle, color);
 }
 
 world.prototype.buildTwoLaneRoad = function (wx, hy, carWidth) {
-
+    var color = 0xD6DBDF
 
     var leftSide = [[-wx, -hy], [-carWidth, -hy], [-carWidth, hy], [-wx, hy]]
-    this.addBodyFromPoints(leftSide)
+    this.addBodyFromPoints(leftSide, color)
 
     var rightSide = [[carWidth, -hy], [wx, -hy], [wx, hy], [carWidth, hy]]
-    this.addBodyFromPoints(rightSide)
+    this.addBodyFromPoints(rightSide, color)
 }
 
 world.prototype.resize = function (renderer) {
@@ -2729,10 +2751,10 @@ world.prototype.step = function (dt) {
         loss += this.agents[i].loss
         reward += this.agents[i].reward
 
-        
+
         if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].isStuck()) {
-            var possibleStartPoints = ["N","S"]
-            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
+            var possibleStartPoints = ["N", "S", "E", "W"]
+            var possibleStartPoint = possibleStartPoints[Math.floor(Math.random() * possibleStartPoints.length)];
             this.agents[i].selfDestruct()
             this.agents[i] = new agent({}, this, possibleStartPoint)
         }

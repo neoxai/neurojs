@@ -57,7 +57,7 @@ class Car {
             var w = 0.12, h = 0.22
             var space = 0.07
             var col = "#" + this.chassisBody.color.toString(16)
-                col = parseInt(tc(col).darken(50).toHex(), 16)
+            col = parseInt(tc(col).darken(50).toHex(), 16)
             var alpha = 0.35, alphal = 0.9
 
             var tl = new PIXI.Graphics()
@@ -90,7 +90,7 @@ class Car {
             // wheels.lineStyle(0.01, col, alphal)
             wheels.drawRect(0.25 - w / 2, -0.5 + space, w, h)
             wheels.endFill()
-        }).bind(this); 
+        }).bind(this);
 
         // Create the vehicle
         this.vehicle = new p2.TopDownVehicle(this.chassisBody);
@@ -121,7 +121,7 @@ class Car {
             return
         }
 
-        this.overlay.clear() 
+        this.overlay.clear()
         this.sensors.draw(this.overlay)
     }
 
@@ -130,7 +130,7 @@ class Car {
         this.frontWheel.steerValue = 0; //this.maxSteer * steer
 
         // Engine force forward
-        var force = throttle * this.maxEngineForce
+        var force = 1; //throttle * this.maxEngineForce
         if (force < 0) {
             if (this.backWheel.getSpeed() > 0.1) {
                 this.backWheel.setBrakeForce(-throttle * this.maxBrakeForce)
@@ -159,26 +159,34 @@ class Car {
         }
     }
 
-    addToCardinal(nsew){
-        if(nsew ==="N"){
-            this.addToWorldWithPos({posX:0, posY:-10, angle:-1*Math.PI});
+    addToCardinal(nsew) {
+        if (nsew === "N") {
+            this.addToWorldWithPos({ posX: 0, posY: -10, angle: -1 * Math.PI });
         }
-        if(nsew ==="S"){
-            this.addToWorldWithPos({posX:0, posY:10, angle:Math.PI});
+        if (nsew === "S") {
+            this.addToWorldWithPos({ posX: 0, posY: 10, angle: Math.PI });
+        }
+        if (nsew === "E") {
+            this.addToWorldWithPos({ posX: 15, posY: -3, angle: Math.PI / 2 });
+        }
+        if (nsew === "W") {
+            this.addToWorldWithPos({ posX: -15, posY: 3, angle: - Math.PI / 2 });
         }
     }
     addToWorld() {
-        var initial={posX: (Math.random() - .5) * this.world.size.w,
-        posY: (Math.random() - .5) * this.world.size.h,
-        angle:(Math.random() * 2.0 - 1.0) * Math.PI}
-            this.addToWorldWithPos(initial);
+        var initial = {
+            posX: (Math.random() - .5) * this.world.size.w,
+            posY: (Math.random() - .5) * this.world.size.h,
+            angle: (Math.random() * 2.0 - 1.0) * Math.PI
+        }
+        this.addToWorldWithPos(initial);
 
     }
 
     addToWorldWithPos(initialPos) {
-        this.chassisBody.position[0] =initialPos.posX
+        this.chassisBody.position[0] = initialPos.posX
         this.chassisBody.position[1] = initialPos.posY
-        this.chassisBody.angle =initialPos.angle
+        this.chassisBody.angle = initialPos.angle
 
         this.world.p2.addBody(this.chassisBody)
         this.vehicle.addToWorld(this.world.p2)
@@ -191,7 +199,7 @@ class Car {
 
         this.world.p2.on("endContact", (event) => {
             if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
-               this.contact--;
+                this.contact--;
             }
         })
 
@@ -201,7 +209,7 @@ class Car {
             }
         })
     }
-    removeFromWorld(){
+    removeFromWorld() {
         this.world.p2.removeBody(this.chassisBody);
         this.vehicle.removeFromWorld(this.world.p2);
     }
@@ -216,33 +224,33 @@ Car.Sensors = (() => {
 
     return sensors.SensorBlueprint.compile([
 
-        { type: 'distance', angle: -45, length: 5, start: [ r, t ] },
-        { type: 'distance', angle: -30, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: -15, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +00, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +15, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +30, length: 5, start: [ 0, t ] },
-        { type: 'distance', angle: +45, length: 5, start: [ l, t ]  },
+        { type: 'distance', angle: -45, length: 5, start: [r, t] },
+        { type: 'distance', angle: -30, length: 5, start: [0, t] },
+        { type: 'distance', angle: -15, length: 5, start: [0, t] },
+        { type: 'distance', angle: +00, length: 5, start: [0, t] },
+        { type: 'distance', angle: +15, length: 5, start: [0, t] },
+        { type: 'distance', angle: +30, length: 5, start: [0, t] },
+        { type: 'distance', angle: +45, length: 5, start: [l, t] },
 
-        { type: 'distance', angle: +135, length: 5, start: [ l, b ]  },
-        { type: 'distance', angle: +165, length: 5, start: [ 0, b ]  },
-        { type: 'distance', angle: -180, length: 5, start: [ 0, b ]  },
-        { type: 'distance', angle: -165, length: 5, start: [ 0, b ]  },
-        { type: 'distance', angle: -135, length: 5, start: [ r, b ]  },
+        { type: 'distance', angle: +135, length: 5, start: [l, b] },
+        { type: 'distance', angle: +165, length: 5, start: [0, b] },
+        { type: 'distance', angle: -180, length: 5, start: [0, b] },
+        { type: 'distance', angle: -165, length: 5, start: [0, b] },
+        { type: 'distance', angle: -135, length: 5, start: [r, b] },
 
-        { type: 'distance', angle: -10, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: -03, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: +00, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: +03, length: 10, start: [ 0, t ]  },
-        { type: 'distance', angle: +10, length: 10, start: [ 0, t ]  },
+        { type: 'distance', angle: -10, length: 10, start: [0, t] },
+        { type: 'distance', angle: -03, length: 10, start: [0, t] },
+        { type: 'distance', angle: +00, length: 10, start: [0, t] },
+        { type: 'distance', angle: +03, length: 10, start: [0, t] },
+        { type: 'distance', angle: +10, length: 10, start: [0, t] },
 
-        { type: 'distance', angle: +60, length: 5, start: [ l, 0 ]  },
-        { type: 'distance', angle: +90, length: 5, start: [ l, 0 ]  },
-        { type: 'distance', angle: +120, length: 5, start: [ l, 0 ]  },
+        { type: 'distance', angle: +60, length: 5, start: [l, 0] },
+        { type: 'distance', angle: +90, length: 5, start: [l, 0] },
+        { type: 'distance', angle: +120, length: 5, start: [l, 0] },
 
-        { type: 'distance', angle: -60, length: 5, start: [ r, 0 ]  },
-        { type: 'distance', angle: -90, length: 5, start: [ r, 0 ]  },
-        { type: 'distance', angle: -120, length: 5, start: [ r, 0 ]  },
+        { type: 'distance', angle: -60, length: 5, start: [r, 0] },
+        { type: 'distance', angle: -90, length: 5, start: [r, 0] },
+        { type: 'distance', angle: -120, length: 5, start: [r, 0] },
 
         { type: 'speed' },
 
