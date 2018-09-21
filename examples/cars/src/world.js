@@ -161,11 +161,16 @@ world.prototype.init = function (renderer) {
 world.prototype.populate = function (n) {
 
     var ag1 = new agent({}, this, "N")
+	var ag2 = new agent({}, this, "N")
+	var ag3 = new agent({}, this, "N")
+	
     //var ag = new agent({}, this, "S")
 
     //this.agents.push(ag);
     this.agents.push(ag1);
-
+	this.agents.push(ag2);
+	this.agents.push(ag3);
+	
     var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
 
     // this.buildQuadrant(wx, hy, 1.2, -1, -1);
@@ -240,7 +245,7 @@ world.prototype.step = function (dt) {
         // I removed this to give time for exploration. I replaced it with a hard timer reset.
         // I also added a higher penalty for staying stuck
         // this.agents[i].isStuck() ||
-        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].timer > 10000) {
+        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].timer > 4000) {
             var possibleStartPoints = ["N"]
             var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
             this.agents[i].selfDestruct()

@@ -372,14 +372,16 @@ function agent(opt, world, startPoint) {
     this.South = {posX: 0, posY: 10, angle: Math.PI}
 
     if (startPoint == "N") {
-        this.startPoint = this.North
-        this.endPoint = this.South
+        //this.startPoint = this.North
+        //this.endPoint = this.South
     }
     else {
-        this.startPoint = this.South
-        this.endPoint = this.North
+        //this.startPoint = this.South
+        //this.endPoint = this.North
     }
-
+	this.startPoint = {posX: Math.random() * 10.0, posY: Math.random() * 10.0, angle: Math.random() * Math.PI};
+	this.endPoint = this.South;
+	
     this.car = new car(world, { endPoint: this.endPoint })
     this.options = opt
 
@@ -390,8 +392,9 @@ function agent(opt, world, startPoint) {
     this.stuckCounter=0;
     this.previousDistance=0
 
-    this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX,2) 
-                                    + Math.pow(this.endPoint.posY - this.startPoint.posY,2))
+    //this.originalDistance = Math.sqrt(Math.pow(this.endPoint.posX - this.startPoint.posX,2) 
+    //                                + Math.pow(this.endPoint.posY - this.startPoint.posY,2))
+	this.originalDistance = 20;
 
     this.loss = 0
     this.timer = 0
@@ -464,6 +467,8 @@ agent.prototype.step = function (dt) {
         // todo: have a reward base on speed TOWARDS end goal?
         //this.reward = Math.pow(this.originalDistance/distance,2) - this.car.contact * 10 - this.car.impact * 20 + velocityAngleFromEndGoal*5
 		this.reward = this.originalDistance - distance - this.car.contact * 10 - this.car.impact * 20;
+		if (distance < 1)
+			this.reward *= 3;
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
         //    this.reward -= 1.0 * this.stuckCounter
@@ -2760,11 +2765,16 @@ world.prototype.init = function (renderer) {
 world.prototype.populate = function (n) {
 
     var ag1 = new agent({}, this, "N")
+	var ag2 = new agent({}, this, "N")
+	var ag3 = new agent({}, this, "N")
+	
     //var ag = new agent({}, this, "S")
 
     //this.agents.push(ag);
     this.agents.push(ag1);
-
+	this.agents.push(ag2);
+	this.agents.push(ag3);
+	
     var wx = this.size.w / 2 - .15, hy = this.size.h / 2 - .15
 
     // this.buildQuadrant(wx, hy, 1.2, -1, -1);
@@ -2839,7 +2849,7 @@ world.prototype.step = function (dt) {
         // I removed this to give time for exploration. I replaced it with a hard timer reset.
         // I also added a higher penalty for staying stuck
         // this.agents[i].isStuck() ||
-        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].timer > 10000) {
+        if (this.agents[i].getDistanceFromEndpoint() < 4 || this.agents[i].timer > 4000) {
             var possibleStartPoints = ["N"]
             var possibleStartPoint = possibleStartPoints[Math.floor(Math.random()*possibleStartPoints.length)];
             this.agents[i].selfDestruct()
